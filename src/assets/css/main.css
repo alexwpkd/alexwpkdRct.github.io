@@ -2814,3 +2814,12 @@ table.order-details tbody td {
 .total-data strong {
   color: #0D0D0D;
 }
+
+/* Igualar el ancho de Bootstrap al del template antiguo en pantallas grandes */
+@media (min-width: 1200px) {
+  .container { max-width: 1140px; }
+}
+@media (min-width: 1400px) {
+  /* si estás usando Bootstrap 5 (que trae .xxl), evita que se pase a 1320px */
+  .container { max-width: 1140px; }
+}

@@ -1,0 +1,9 @@
+/* Fuerza exactamente el ancho del template */
+.container-fixed {
+  width: 100%;
+  max-width: 1140px !important;   /* cambia el número si tu template usaba otro */
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+}
