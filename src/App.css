@@ -1,8 +1,15 @@
+/* Elimina restricciones del boilerplate de Vite que centraban todo el app */
 #root {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: initial;
+  /*
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
+  text-align: center;*/
+
 }
 
 .logo {

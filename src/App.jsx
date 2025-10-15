@@ -3,7 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { Routes, Route } from 'react-router-dom'
-//import Header from '@/components/Header.jsx'
+import Header from '@/components/Header.jsx'
 import Footer from '@/components/Footer.jsx'
 
 
@@ -49,7 +49,8 @@ const Login = () => <main className="container" style={{padding:'3rem 0'}}>Login
 export default function App() {
   return (
     <>
-      {/*<Header />*/}
+    <div className="app">
+      <Header />
       <Routes>
         <Route path="/" element={<Home/>} />
         <Route path="/about" element={<About/>} />
@@ -60,6 +61,7 @@ export default function App() {
         <Route path="*" element={<main className="container" style={{padding:'3rem 0'}}>404</main>} />
       </Routes>
       <Footer />
+    </div>
     </>
   )
 }

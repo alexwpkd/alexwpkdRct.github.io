@@ -476,7 +476,7 @@ a.boxed-btn, a.bordered-btn, a.cart-btn {
 }
 
 .breadcrumb-bg {
-  background-image: url(../images/breadcrumb-bg.jpg);
+  background-image: url(../img/breadcrumb-bg.jpg);
 }
 
 .breadcrumb-text p {
@@ -1366,7 +1366,7 @@ a.mobile-show.search-bar-icon:hover {
 
 ----------------------------------------------------------------------------- */
 .hero-bg {
-  background-image: url(../images/ejem.jpg);
+  background-image: url(../img/ejem.jpg);
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -1474,15 +1474,15 @@ input[type="submit"] {
 }
 
 .homepage-bg-1 {
-  background-image: url(../images/hero-bg.jpg);
+  background-image: url(../img/hero-bg.jpg);
 }
 
 .homepage-bg-2 {
-  background-image: url(../images/hero-bg-2.jpg);
+  background-image: url(../img/hero-bg-2.jpg);
 }
 
 .homepage-bg-3 {
-  background-image: url(../images/hero-bg-3.jpg);
+  background-image: url(../img/hero-bg-3.jpg);
 }
 
 .homepage-slider {
@@ -1596,27 +1596,27 @@ div.owl-controls, .owl-controls div {
 
 ----------------------------------------------------------------------------- */
 .news-bg-1 {
-  background-image: url(../images/latest-news/news-bg-1.jpg);
+  background-image: url(../img/latest-news/news-bg-1.jpg);
 }
 
 .news-bg-2 {
-  background-image: url(../images/latest-news/news-bg-2.jpg);
+  background-image: url(../img/latest-news/news-bg-2.jpg);
 }
 
 .news-bg-3 {
-  background-image: url(../images/latest-news/news-bg-3.jpg);
+  background-image: url(../img/latest-news/news-bg-3.jpg);
 }
 
 .news-bg-4 {
-  background-image: url(../images/latest-news/news-bg-4.jpg);
+  background-image: url(../img/latest-news/news-bg-4.jpg);
 }
 
 .news-bg-5 {
-  background-image: url(../images/latest-news/news-bg-5.jpg);
+  background-image: url(../img/latest-news/news-bg-5.jpg);
 }
 
 .news-bg-6 {
-  background-image: url(../images/latest-news/news-bg-6.jpg);
+  background-image: url(../img/latest-news/news-bg-6.jpg);
 }
 
 .latest-news-bg {
@@ -1674,7 +1674,7 @@ p.excerpt {
 }
 
 .single-artcile-bg {
-  background-image: url(../images/latest-news/news-bg-3.jpg);
+  background-image: url(../img/latest-news/news-bg-3.jpg);
   height: 450px;
 }
 
@@ -2079,7 +2079,7 @@ a.video-play-btn {
 }
 
 .abt-bg {
-  background-image: url(../images/abt.jpg);
+  background-image: url(../img/abt.jpg);
   height: 100%;
   width: 100%;
   background-size: cover;
@@ -2130,7 +2130,7 @@ a.video-play-btn {
 .shop-banner {
   position: relative;
   background-color: #f5f5f5;
-  background-image: url(../images/1.jpg);
+  background-image: url(../img/1.jpg);
   background-size: cover;
   padding: 110px 0px 115px;
 }
@@ -2171,7 +2171,7 @@ a.video-play-btn {
 }
 
 .feature-bg:after {
-  background-image: url(../images/feature-bg.jpg);
+  background-image: url(../img/feature-bg.jpg);
   position: absolute;
   right: 0;
   top: 0;
@@ -2187,19 +2187,19 @@ a.video-play-btn {
 }
 
 .team-bg-1 {
-  background-image: url(../images/team/team-1.jpg);
+  background-image: url(../img/team/team-1.jpg);
 }
 
 .team-bg-2 {
-  background-image: url(../images/team/team-2.jpg);
+  background-image: url(../img/team/team-2.jpg);
 }
 
 .team-bg-3 {
-  background-image: url(../images/team/team-3.jpg);
+  background-image: url(../img/team/team-3.jpg);
 }
 
 .team-bg-4 {
-  background-image: url(../images/team/team-4.jpg);
+  background-image: url(../img/team/team-4.jpg);
 }
 
 .team-bg {
@@ -2246,7 +2246,7 @@ ul.social-link-team li {
 
 ul.social-link-team li a {
   color: #fff;
-  background-color: #F28123;
+  background-color: #fff;
   width: 32px;
   height: 32px;
   line-height: 32px;
@@ -2813,13 +2813,4 @@ table.order-details tbody td {
 
 .total-data strong {
   color: #0D0D0D;
-}
-
-/* Igualar el ancho de Bootstrap al del template antiguo en pantallas grandes */
-@media (min-width: 1200px) {
-  .container { max-width: 1140px; }
-}
-@media (min-width: 1400px) {
-  /* si estás usando Bootstrap 5 (que trae .xxl), evita que se pase a 1320px */
-  .container { max-width: 1140px; }
 }

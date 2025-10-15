@@ -1,9 +1,50 @@
-/* Fuerza exactamente el ancho del template */
-.container-fixed {
+/*
+
+/* === Header (sin jQuery) === */
+.nav-toggle { display:none; background:none; border:0; font-size:22px; }
+.main-menu ul { list-style:none; margin:0; padding:0; display:flex; gap:20px; align-items:center; }
+.main-menu a { text-decoration:none; }
+.current-list-item > a, .main-menu a.active { color: var(--primary, #007bff); }
+
+@media (max-width: 991px) {
+  .nav-toggle { display:inline-block; position:absolute; right:16px; top:18px; }
+  .main-menu { display:none; }
+  .main-menu.open { display:block; }
+  .main-menu ul { flex-direction:column; gap:12px; padding:16px 0; }
+}
+
+/* Búsqueda */
+.search-area { display:none; }
+.search-area.open { display:block; }
+.search-area .close-btn { cursor:pointer; }
+
+/* Sticky header */
+.top-header-area { position: sticky; top: 0; z-index: 999; }
+
+/* === Sticky footer layout === */
+html, body, #root { height: 100%; }
+.app { min-height:100%; display:flex; flex-direction:column; }
+.app > main { flex:1 0 auto; }
+.footer-area, .copyright { flex-shrink:0; }
+
+/* === Fondo del footer/copyright a 100% (full-bleed) === */
+.footer-area, .copyright {
+  width: 100% !important;
+  display: block;
+}
+.footer-area { background-color: #051922; }
+.copyright  { background-color: #081d24; }
+
+/* === CONTENIDO centrado como el resto del sitio === */
+.footer-area > .container,
+.copyright > .container {
   width: 100%;
-  max-width: 1140px !important;   /* cambia el número si tu template usaba otro */
+  max-width: 1200px;       /* cámbialo a 1170/1200 si tu template usaba otro */
   margin-left: auto !important;
   margin-right: auto !important;
-  padding-left: 15px !important;
-  padding-right: 15px !important;
+  padding-left: 15px;
+  padding-right: 15px;
+  position: static !important;   /* por si algo lo movía */
+  left: auto !important;
+  right: auto !important;
 }
