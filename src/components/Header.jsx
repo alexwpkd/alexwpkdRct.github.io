@@ -1,6 +1,6 @@
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import images from '@/assets/images'
+import images from '../assets/images/index.js'
 
 export default function Header() {
   const [open, setOpen] = useState(false)
