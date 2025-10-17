@@ -1,12 +1,9 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import { Routes, Route } from 'react-router-dom'
 import Header from '@/components/Header.jsx'
-import Hero from './components/Hero'
 import Footer from '@/components/Footer.jsx'
 import About from '@/components/About.jsx'
+import Home from '@/components/Home.jsx'
 
 
 /*
@@ -41,7 +38,6 @@ function App() {
 */
 
 // crea luego tus páginas reales:
-const Home = () => <main className="container" style={{padding:'3rem 0'}}>Home</main>
 const Shop = () => <main className="container" style={{padding:'3rem 0'}}>Shop</main>
 const Contact = () => <main className="container" style={{padding:'3rem 0'}}>Contact</main>
 const News = () => <main className="container" style={{padding:'3rem 0'}}>News</main>
@@ -53,7 +49,6 @@ export default function App() {
     <>
     <div className="app">
       <Header />
-      <Hero />
       <Routes>
         <Route path="/" element={<Home/>} />
         <Route path="/about" element={<About/>} />

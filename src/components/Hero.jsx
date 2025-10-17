@@ -1,10 +1,10 @@
-export default function Hero() {
+export default function Hero({ title = 'ALPHA SQUAD' }) {
     return (
         <>
             {/* hero area */}
             <div className="hero-area hero-bg hero-bg--parallax">
                 <div className="hero-center-content">
-                    <h1>ALPHA SQUAD</h1>
+                    <h1>{title}</h1>
                 </div>
             </div>
             {/* end hero area */}
