@@ -8,12 +8,17 @@ import useProductData from './ProductData';
 function Shop() {
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedCategory, setSelectedCategory] = useState('all');
+    const [searchTerm, setSearchTerm] = useState('');
     
     // Usar el hook personalizado de datos
     const { products, categories, getProductsByCategory } = useProductData();
 
-    // Filtrar productos por categoría
-    const filteredProducts = getProductsByCategory(selectedCategory);
+    // Filtrar productos por categoría Y búsqueda
+    const filteredProducts = getProductsByCategory(selectedCategory).filter(product => 
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     // Paginación
     const productsPerPage = 6;
@@ -34,6 +39,17 @@ function Shop() {
     const handleCategoryChange = (category) => {
         setSelectedCategory(category);
         setCurrentPage(1);
+        setSearchTerm(''); // Limpiar búsqueda al cambiar categoría
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1); // Resetear a primera página al buscar
+    };
+
+    const clearSearch = () => {
+        setSearchTerm('');
+        setCurrentPage(1);
     };
 
     const pages = [...Array(totalPages)].map((_, index) => index + 1);
@@ -50,24 +66,122 @@ function Shop() {
                 </div>
             </div>
 
-            {/* Filtros de categoría */}
+            {/* Barra de Búsqueda y Filtros */}
             <div className="container mt-4">
                 <div className="row">
-                    <div className="col-lg-12">
-                        <div className="category-filters text-center">
-                            {categories.map(category => (
-                                <button
-                                    key={category.id}
-                                    className={`category-btn ${selectedCategory === category.id ? 'active' : ''}`}
-                                    onClick={() => handleCategoryChange(category.id)}
-                                >
-                                    {category.name}
-                                </button>
-                            ))}
+                    {/* Buscador */}
+                    <div className="col-lg-6 mb-3">
+                        <div className="search-box">
+                            <div className="input-group">
+                                <input 
+                                    type="text" 
+                                    className="form-control search-input"
+                                    placeholder="🔍 Buscar productos..." 
+                                    value={searchTerm}
+                                    onChange={handleSearchChange}
+                                />
+                                {searchTerm && (
+                                    <button 
+                                        className="btn btn-outline-secondary clear-search" 
+                                        type="button"
+                                        onClick={clearSearch}
+                                    >
+                                        ✕
+                                    </button>
+                                )}
+                            </div>
+                            {searchTerm && (
+                                <div className="search-results-info mt-2">
+                                    <small className="text-muted">
+                                        {filteredProducts.length} producto(s) encontrado(s) para "{searchTerm}"
+                                    </small>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Selector de Categorías */}
+                    <div className="col-lg-6 mb-3">
+                        <div className="category-selector">
+                            <label className="form-label">Filtrar por categoría:</label>
+                            <select 
+                                className="form-select category-dropdown"
+                                value={selectedCategory}
+                                onChange={(e) => handleCategoryChange(e.target.value)}
+                            >
+                                {categories.map(category => (
+                                    <option key={category.id} value={category.id}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Filtros Rápidos con Botones */}
+                <div className="row">
+                    <div className="col-12">
+                        <div className="quick-filters">
+                            <label className="filter-label">Categorías rápidas:</label>
+                            <div className="filter-buttons">
+                                {categories.map(category => (
+                                    <button
+                                        key={category.id}
+                                        className={`filter-btn ${selectedCategory === category.id ? 'active' : ''}`}
+                                        onClick={() => handleCategoryChange(category.id)}
+                                    >
+                                        {category.name}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Información de Filtros Activos */}
+            {(selectedCategory !== 'all' || searchTerm) && (
+                <div className="container mt-3">
+                    <div className="active-filters">
+                        <div className="filter-tags">
+                            {selectedCategory !== 'all' && (
+                                <span className="filter-tag">
+                                    Categoría: {categories.find(cat => cat.id === selectedCategory)?.name}
+                                    <button 
+                                        onClick={() => handleCategoryChange('all')}
+                                        className="remove-filter"
+                                    >
+                                        ✕
+                                    </button>
+                                </span>
+                            )}
+                            {searchTerm && (
+                                <span className="filter-tag">
+                                    Búsqueda: "{searchTerm}"
+                                    <button 
+                                        onClick={clearSearch}
+                                        className="remove-filter"
+                                    >
+                                        ✕
+                                    </button>
+                                </span>
+                            )}
+                            {(selectedCategory !== 'all' || searchTerm) && (
+                                <button 
+                                    className="clear-all-filters"
+                                    onClick={() => {
+                                        handleCategoryChange('all');
+                                        clearSearch();
+                                    }}
+                                >
+                                    Limpiar todos los filtros
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* products */}
             <div className="product-section mt-50 mb-150">
@@ -106,7 +220,26 @@ function Shop() {
                             ))
                         ) : (
                             <div className="col-12 text-center">
-                                <p>No hay productos en esta categoría.</p>
+                                <div className="no-products-found">
+                                    <i className="fas fa-search fa-3x text-muted mb-3"></i>
+                                    <h4>No se encontraron productos</h4>
+                                    <p>
+                                        {searchTerm 
+                                            ? `No hay resultados para "${searchTerm}" en ${selectedCategory !== 'all' ? categories.find(cat => cat.id === selectedCategory)?.name : 'todas las categorías'}`
+                                            : `No hay productos en la categoría ${categories.find(cat => cat.id === selectedCategory)?.name}`
+                                        }
+                                    </p>
+                                    <button 
+                                        className="btn btn-primary mt-2"
+                                        onClick={() => {
+                                            handleCategoryChange('all');
+                                            clearSearch();
+                                        }}
+                                    >
+                                        <i className="fas fa-store me-2"></i>
+                                        Ver todos los productos
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -116,6 +249,11 @@ function Shop() {
                         <div className="row">
                             <div className="col-lg-12 text-center">
                                 <div className="pagination-wrap">
+                                    <div className="pagination-info mb-2">
+                                        <small className="text-muted">
+                                            Página {currentPage} de {totalPages} - {filteredProducts.length} producto(s) en total
+                                        </small>
+                                    </div>
                                     <ul>
                                         <li>
                                             <button 

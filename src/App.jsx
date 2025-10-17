@@ -8,7 +8,10 @@ import Hero from './components/Hero'
 import Footer from '@/components/Footer.jsx'
 import About from '@/components/About.jsx'
 import Contact from '@/components/Contact.jsx'
-import Shop from '@/components/Shop.jsx' // Agregar esta importación
+import Shop from '@/components/Shop.jsx'
+import Login from '@/components/Login.jsx'
+import News from '@/components/News.jsx'
+import Admin from '@/components/Admin.jsx' // ✅ IMPORTACIÓN AGREGADA
 
 /*
 function App() {
@@ -43,10 +46,6 @@ function App() {
 
 // crea luego tus páginas reales:
 const Home = () => <main className="container" style={{padding:'3rem 0'}}>Home</main>
-const News = () => <main className="container" style={{padding:'3rem 0'}}>News</main>
-const Login = () => <main className="container" style={{padding:'3rem 0'}}>Login</main>
-
-// Ya no necesitas el Shop temporal porque ahora tienes el componente real
 
 export default function App() {
   return (
@@ -57,10 +56,11 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home/>} />
         <Route path="/about" element={<About/>} />
-        <Route path="/shop" element={<Shop/>} /> {/* Ahora usa el componente real */}
+        <Route path="/shop" element={<Shop/>} />
         <Route path="/contact" element={<Contact/>} />
         <Route path="/news" element={<News/>} />
         <Route path="/login" element={<Login/>} />
+        <Route path="/admin" element={<Admin/>} /> {/* ✅ RUTA AGREGADA */}
         <Route path="*" element={<main className="container" style={{padding:'3rem 0'}}>404</main>} />
       </Routes>
       <Footer />
