@@ -1,3 +1,50 @@
+/* Header transparente sobre el hero (máxima prioridad) */
+body .top-header-area,
+body .top-header-area.white,
+body .top-header-area.sepherate-header {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Sticky header: fondo semitransparente para legibilidad (máxima prioridad) */
+body .sticky-wrapper.is-sticky .top-header-area,
+body .sticky-wrapper.is-sticky .top-header-area.white,
+body .sticky-wrapper.is-sticky .top-header-area.sepherate-header {
+  background: rgba(5,25,34,0.85) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+  border: none !important;
+  transition: background 0.3s;
+}
+/* Centrado absoluto y padding para el hero */
+.hero-area.hero-bg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 60vh;
+  padding-top: 90px; /* Altura del header fijo, ajusta si tu header es más alto */
+  box-sizing: border-box;
+}
+
+.hero-center-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+/* Parallax efecto: background-attachment fixed solo en desktop */
+.hero-bg--parallax {
+  background-attachment: fixed !important;
+}
+@media (max-width: 991.98px) {
+  .hero-bg--parallax {
+    background-attachment: scroll !important;
+  }
+}
 /*
 
 /* === Header (sin jQuery) === */
@@ -47,4 +94,29 @@ html, body, #root { height: 100%; }
   position: static !important;   /* por si algo lo movía */
   left: auto !important;
   right: auto !important;
+}
+
+/* === Hero helpers === */
+/* Asegura que el hero tenga altura visible y no quede del tamaño del texto */
+.hero-area.hero-bg { min-height: 60vh; }
+@media (min-width: 992px) {
+  .hero-area.hero-bg { min-height: 100vh; }
+}
+
+/* Si quieres ver la imagen completa sin recortar, añade esta clase extra al hero */
+.hero-bg--contain {
+  background-size: contain !important;
+  background-repeat: no-repeat;
+}
+
+/* background-attachment: fixed no funciona bien en móviles */
+@media (max-width: 991.98px) {
+  .hero-bg { background-attachment: scroll !important; }
+}
+
+/* Hero heading color */
+.hero-area h1,
+.hero-text h1,
+.hero-center-content h1 {
+  color: #fff !important;
 }

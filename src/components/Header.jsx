@@ -13,11 +13,11 @@ export default function Header() {
   return (
   <>
     {/* header */}
-    <div className="top-header-area">
-      <div className="container">
-        <div className="row">
-          <div className="col-lg-12 col-sm-12 text-center">
-            <div className="main-menu-wrap">
+  <div className="top-header-area" style={{background:'transparent',backgroundColor:'transparent',boxShadow:'none',border:'none',zIndex:1000,position:'absolute',width:'100%'}}>
+  <div className="container" style={{background:'transparent',backgroundColor:'transparent',boxShadow:'none',border:'none'}}>
+  <div className="row" style={{background:'transparent',backgroundColor:'transparent',boxShadow:'none',border:'none'}}>
+          <div className="col-lg-12 col-sm-12 text-center" style={{background:'transparent',backgroundColor:'transparent',boxShadow:'none',border:'none'}}>
+            <div className="main-menu-wrap" style={{background:'transparent',backgroundColor:'transparent',boxShadow:'none',border:'none'}}>
               {/* logo */}
               <div className="site-logo">
                 <Link to="/" onClick={closeMenu}>
