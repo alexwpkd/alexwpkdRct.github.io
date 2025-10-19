@@ -1,39 +1,19 @@
-// src/components/Contact.js
 import React, { useState } from 'react';
-import Header from './Header';
-import Footer from './Footer';
 
 function Contact() {
     const [formData, setFormData] = useState({
         name: '',
-        email: '',
+        lastname: '',
         phone: '',
+        email: '',
+        region: '',
         subject: '',
-        message: ''
+        address: '',
+        password: ''
     });
+    const [passwordError, setPasswordError] = useState('');
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Aquí puedes agregar la lógica para enviar el formulario
-        console.log('Formulario enviado:', formData);
-        alert('Mensaje enviado correctamente');
-        // Resetear formulario
-        setFormData({
-            name: '',
-            email: '',
-            phone: '',
-            subject: '',
-            message: ''
-        });
-    };
-
+    // Contact info block restored
     const contactInfo = [
         {
             icon: 'fas fa-map',
@@ -52,15 +32,72 @@ function Contact() {
         }
     ];
 
+    // Password validation
+    const validatePassword = (value) => {
+        const minLength = 8;
+        const hasUpper = /[A-Z]/.test(value);
+        const hasNumber = /[0-9]/.test(value);
+        const hasSpecial = /[^A-Za-z0-9]/.test(value);
+        if (value.length < minLength) {
+            return 'Mínimo 8 caracteres';
+        }
+        if (!hasUpper) {
+            return 'Debe tener al menos 1 mayúscula';
+        }
+        if (!hasNumber) {
+            return 'Debe tener al menos 1 número';
+        }
+        if (!hasSpecial) {
+            return 'Debe tener al menos 1 caracter especial';
+        }
+        return '';
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+        if (name === 'password') {
+            setPasswordError(validatePassword(value));
+        }
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (validatePassword(formData.password)) {
+            setPasswordError(validatePassword(formData.password));
+            return;
+        }
+        alert('Formulario enviado correctamente');
+        setFormData({
+            name: '',
+            lastname: '',
+            phone: '',
+            email: '',
+            region: '',
+            subject: '',
+            address: '',
+            password: ''
+        });
+        setPasswordError('');
+    };
+
     return (
-        <div className="Contact">
-            <Header />
-            
-            {/* breadcrumb */}
-            <div className="breadcrumb-section breadcrumb-bg">
-                <div className="container text-center">
-                    <h1>Contáctanos</h1>
-                    <p>¿Tienes dudas? Estamos aquí para ayudarte.</p>
+        <div>
+            {/* Hero con imagen de fondo */}
+            <div className="hero-area hero-bg" style={{height: '40vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: "linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('/assets/images/avaters/hero-bg.jpg') no-repeat center center", backgroundSize: 'cover'}}>
+                <div className="container">
+                    <div className="row">
+                        <div className="col-lg-9 offset-lg-2 text-center">
+                            <div className="hero-text">
+                                <div className="hero-text-tablecell">
+                                    <h1 style={{color: 'white', textShadow: '2px 2px 8px rgba(0,0,0,0.8)'}}>Identifícate y nos veremos en el campo</h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -68,74 +105,45 @@ function Contact() {
             <div className="contact-from-section mt-150 mb-150">
                 <div className="container">
                     <div className="row">
-                        <div className="col-lg-6 mb-5 mb-lg-0">
-                            <div className="form-title">
-                                <h2>¿Tienes alguna pregunta?</h2>
-                                <p>Completa el formulario y nuestro equipo se pondrá en contacto contigo a la brevedad.</p>
+                        <div className="col-lg-8 mb-5 mb-lg-0">
+                            <div className="form-title" style={{marginTop: '40px'}}>
+                                <h2>Identifícate y nos veremos en el campo</h2>
+                                <p className="descripcion-productos">Completa tus datos para unirte a la misión.</p>
                             </div>
                             <div id="form_status"></div>
                             <div className="contact-form">
                                 <form onSubmit={handleSubmit}>
-                                    <p>
-                                        <input 
-                                            type="text" 
-                                            placeholder="Nombre" 
-                                            name="name" 
-                                            id="name"
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                        <input 
-                                            type="email" 
-                                            placeholder="Correo" 
-                                            name="email" 
-                                            id="email"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </p>
-                                    <p>
-                                        <input 
-                                            type="tel" 
-                                            placeholder="Teléfono" 
-                                            name="phone" 
-                                            id="phone"
-                                            value={formData.phone}
-                                            onChange={handleChange}
-                                        />
-                                        <input 
-                                            type="text" 
-                                            placeholder="Asunto" 
-                                            name="subject" 
-                                            id="subject"
-                                            value={formData.subject}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </p>
-                                    <p>
-                                        <textarea 
-                                            name="message" 
-                                            id="message" 
-                                            cols="30" 
-                                            rows="10" 
-                                            placeholder="Mensaje"
-                                            value={formData.message}
-                                            onChange={handleChange}
-                                            required
-                                        ></textarea>
-                                    </p>
-                                    <p><input type="submit" value="Enviar" /></p>
+                                    <div style={{display: 'flex', gap: '20px', marginBottom: '20px'}}>
+                                        <input type="text" placeholder="Nombre" name="name" id="name" maxLength="50" value={formData.name} onChange={handleChange} style={{flex: 1}} />
+                                        <input type="text" placeholder="Apellidos" name="lastname" id="lastname" maxLength="100" value={formData.lastname} onChange={handleChange} style={{flex: 1}} />
+                                    </div>
+                                    <div style={{display: 'flex', gap: '20px', marginBottom: '20px'}}>
+                                        <input type="text" placeholder="Rut" name="phone" id="phone" maxLength="9" value={formData.phone} onChange={handleChange} style={{flex: 1}} />
+                                        <input type="email" placeholder="Correo" name="email" id="email" maxLength="100" value={formData.email} onChange={handleChange} style={{flex: 1}} />
+                                    </div>
+                                    <div style={{display: 'flex', gap: '20px', marginBottom: '20px'}}>
+                                        <input type="text" placeholder="Región" name="region" id="region" value={formData.region} onChange={handleChange} style={{flex: 1}} />
+                                        <input type="text" placeholder="Comuna" name="subject" id="subject" value={formData.subject} onChange={handleChange} style={{flex: 1}} />
+                                    </div>
+                                    <div style={{display: 'flex', gap: '20px', marginBottom: '20px'}}>
+                                        <input type="text" placeholder="Dirección" name="address" id="address" maxLength="300" value={formData.address} onChange={handleChange} style={{flex: 1}} />
+                                        <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
+                                            <input type="password" placeholder="Contraseña" name="password" id="password" maxLength="50" value={formData.password} onChange={handleChange} />
+                                            <small style={{color: passwordError ? 'red' : 'gray'}}>
+                                                Mínimo 8 caracteres, 1 mayúscula, 1 número, 1 caracter especial
+                                            </small>
+                                            {passwordError && <small style={{color: 'red'}}>{passwordError}</small>}
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="token" value="FsWga4&@f6aw" />
+                                    <p><input type="submit" value="Enviar" className="boxed-btn" /></p>
                                 </form>
                             </div>
                         </div>
-
-                        <div className="col-lg-6">
+                        <div className="col-lg-4">
                             <div className="contact-form-wrap">
                                 {contactInfo.map((info, index) => (
-                                    <div key={index} className="contact-form-box">
+                                    <div key={index} className="contact-form-box" style={{marginBottom: '30px'}}>
                                         <h4><i className={info.icon}></i> {info.title}</h4>
                                         <p dangerouslySetInnerHTML={{ __html: info.content }}></p>
                                     </div>
@@ -143,7 +151,6 @@ function Contact() {
                             </div>
                         </div>
                     </div>
-
                     <div className="row mt-100">
                         <div className="col-lg-12">
                             <div className="map-outer">
@@ -165,8 +172,6 @@ function Contact() {
                     </div>
                 </div>
             </div>
-
-            <Footer />
         </div>
     );
 }

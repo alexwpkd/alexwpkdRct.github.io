@@ -1,10 +1,8 @@
 // src/components/Product.jsx
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import Header from './Header';
-import Footer from './Footer';
 import images from '../assets/images/index.js';
-import useProductData from './ProductData';
+import useProductData from './ProductData.jsx';
 
 function Product() {
     const { id } = useParams();
@@ -52,7 +50,6 @@ function Product() {
 
     return (
         <div className="Product">
-            <Header />
             
             {/* breadcrumb */}
             <div className="breadcrumb-section breadcrumb-bg">
@@ -195,7 +192,6 @@ function Product() {
                 </div>
             </div>
 
-            <Footer />
         </div>
     );
 }

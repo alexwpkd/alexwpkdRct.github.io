@@ -1,9 +1,8 @@
 // src/components/Home.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Header from './Header';
-import Footer from './Footer';
-import useProductData from './ProductData';
+import useProductData from './ProductData.jsx';
+import images from '../assets/images/index.js';
 
 function Home() {
     const { getFeaturedProducts } = useProductData();
@@ -11,7 +10,6 @@ function Home() {
 
     return (
         <div className="Home">
-            <Header />
             
             {/* Hero Section - SOLO en el Home */}
             <div className="hero-area hero-bg hero-bg--parallax">
@@ -92,7 +90,7 @@ function Home() {
                                 <div className="single-product-item">
                                     <div className="product-image">
                                         <Link to={`/product/${product.id}`}>
-                                            <img src={`/assets/img/products/${product.imageKey}.jpg`} alt={product.name} />
+                                            <img src={images[product.imageKey]} alt={product.name} />
                                         </Link>
                                     </div>
                                     <h3>{product.name}</h3>
@@ -133,7 +131,6 @@ function Home() {
                 </div>
             </div>
 
-            <Footer />
         </div>
     );
 }

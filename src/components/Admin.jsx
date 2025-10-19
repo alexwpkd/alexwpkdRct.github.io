@@ -85,7 +85,7 @@ function Admin() {
         }
     ]);
 
-    const [sales, setSales] = useState([
+    const [sales, _setSales] = useState([
         {
             id: 1001,
             productId: 1,

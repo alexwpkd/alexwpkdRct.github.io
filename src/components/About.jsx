@@ -18,12 +18,12 @@ export default function About() {
                   Nuestro objetivo es apoyar tanto a jugadores que recién comienzan como a veteranos que buscan mejorar su arsenal o su equipamiento táctico.
                 </p>
                 <h2 className="pb-3 mt-5 font-title-aviso">Aviso Importante</h2>
-                <p className="descripcion-productos">
-                  <b>Todas nuestras réplicas están destinados exclusivamente al uso recreativo</b> en partidas de airsoft o coleccionismo responsable.<br/>
-                  <b className="bg-prohibido">Queda estrictamente prohibido</b> <span className="text-blanco">utilizarlas con fines intimidatorios, delictivos o en cualquier contexto ajeno al deporte.</span><br/>
+                <p className="descripcion-productos text-blanco">
+                  Todas nuestras réplicas están destinados exclusivamente al uso recreativo en partidas de airsoft o coleccionismo responsable.
+                  <span className="bg-prohibido">Queda estrictamente prohibido utilizarlas con fines intimidatorios, delictivos o en cualquier contexto ajeno al deporte.</span>
                   Cada compra queda registrada junto con los datos del cliente y número de serie del producto, y en caso de mal uso, dicha información podrá ser entregada a las autoridades para su ubicación y confiscación correspondiente.<br/>
-                  <span className="text-blanco">Nuestro público está orientado a jóvenes mayores de 18 años</span> o menores bajo la supervisión y respaldo de un adulto responsable.<br/>
-                  <b>Recordemos:</b> el airsoft es diversión, estrategia y compañerismo — <b>nunca violencia</b>.
+                  Nuestro público está orientado a jóvenes mayores de 18 años o menores bajo la supervisión y respaldo de un adulto responsable.
+                  Recordemos: el airsoft es diversión, estrategia y compañerismo.
                 </p>
               </div>
             </div>
@@ -57,14 +57,14 @@ export default function About() {
         </div>
         <div className="col-lg-4 col-md-6">
           <div className="single-team-item">
-            <div className="team-bg team-bg-3" />
+            <div className="team-bg team-bg-2" />
             <h4>Dylan R <span /></h4>
             <h4>Co-fundador<span /></h4>
           </div>
         </div>
         <div className="col-lg-4 col-md-6">
           <div className="single-team-item">
-            <div className="team-bg team-bg-2" />
+            <div className="team-bg team-bg-3" />
             <h4>Alexis Olgin<span /></h4>
             <h4>Co-fundador<span /></h4>
           </div>

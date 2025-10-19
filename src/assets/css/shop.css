@@ -1,0 +1,240 @@
+/* Shop.css - Estilos para la tienda Arsenal */
+
+/* Botones de filtro de categoría */
+.category-filter-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 20px;
+}
+
+.category-filter-btn {
+    padding: 12px 30px;
+    border: 2px solid #051922;
+    background-color: white;
+    color: #051922;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.category-filter-btn:hover {
+    background-color: #051922;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(5, 25, 34, 0.2);
+}
+
+.category-filter-btn.active {
+    background-color: #F28123;
+    color: white;
+    border-color: #F28123;
+}
+
+.category-filter-btn.active:hover {
+    background-color: #d66f1a;
+    border-color: #d66f1a;
+}
+
+/* Productos uniformes */
+.single-product-item {
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 550px;
+}
+
+.single-product-item:hover {
+    border-color: #F28123;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+}
+
+.product-image {
+    position: relative;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.product-image img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.single-product-item:hover .product-image img {
+    transform: scale(1.05);
+}
+
+.product-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between;
+}
+
+.single-product-item h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #051922;
+    margin-bottom: 10px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.product-description {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.product-price {
+    font-size: 24px;
+    font-weight: 700;
+    color: #F28123;
+    margin-bottom: 15px;
+}
+
+.product-price span {
+    font-size: 14px;
+    color: #666;
+    font-weight: 400;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.cart-btn {
+    padding: 12px 25px;
+    background-color: #F28123;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: auto;
+}
+
+.cart-btn:hover {
+    background-color: #d66f1a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(242, 129, 35, 0.3);
+}
+
+.cart-btn.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.cart-btn.disabled:hover {
+    background-color: #ccc;
+    transform: none;
+    box-shadow: none;
+}
+
+.out-of-stock {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #e74c3c;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 10;
+}
+
+/* Mensaje sin productos */
+.no-products-found {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.no-products-found h4 {
+    color: #051922;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.no-products-found p {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+/* Fondo suave para productos */
+.product-bg {
+    background: linear-gradient(135deg, #f7f7fa 0%, #e3e6f3 100%);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .category-filter-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .single-product-item {
+        min-height: 500px;
+    }
+
+    .product-image {
+        height: 200px;
+    }
+
+    .single-product-item h3 {
+        font-size: 16px;
+        min-height: 45px;
+    }
+
+    .product-description {
+        font-size: 13px;
+        min-height: 55px;
+    }
+
+    .product-price {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .category-filter-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .category-filter-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}

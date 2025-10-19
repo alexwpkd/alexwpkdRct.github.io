@@ -1,15 +1,15 @@
 // src/App.jsx
 import { Routes, Route } from 'react-router-dom'
-import Header from '@/components/Header.jsx'
-import Footer from '@/components/Footer.jsx'
-import Home from '@/components/Home.jsx'
-import About from '@/components/About.jsx'
-import Contact from '@/components/Contact.jsx'
-import Shop from '@/components/Shop.jsx'
-import Login from '@/components/Login.jsx'
-import News from '@/components/News.jsx'
-import Admin from '@/components/Admin.jsx'
-import Product from '@/components/Product.jsx'
+import Header from './components/Header.jsx';
+import Footer from './components/Footer.jsx';
+import Home from './components/Home.jsx';
+import About from './components/About.jsx';
+import Contact from './components/Contact.jsx';
+import Shop from './components/Shop.jsx';
+import Login from './components/Login.jsx';
+import News from './components/News.jsx';
+import Admin from './components/Admin.jsx';
+import Product from './components/Product.jsx';
 
 export default function App() {
   return (

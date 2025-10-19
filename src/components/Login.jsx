@@ -78,7 +78,7 @@ function Login() {
                 password: ''
             });
             
-        } catch (error) {
+        } catch {
             setLoginStatus('Error al iniciar sesión. Intenta nuevamente.');
         } finally {
             setLoading(false);
