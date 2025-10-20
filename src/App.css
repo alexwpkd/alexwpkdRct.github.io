@@ -1,4 +1,11 @@
-/* Elimina restricciones del boilerplate de Vite que centraban todo el app */
+/* Asegura que el texto de carga nunca tenga animación ni movimiento */
+.static-loading-text {
+  animation: none !important;
+  -webkit-animation: none !important;
+  -moz-animation: none !important;
+  -o-animation: none !important;
+  transition: none !important;
+}/* Elimina restricciones del boilerplate de Vite que centraban todo el app */
 #root {
   max-width: none;
   margin: 0;

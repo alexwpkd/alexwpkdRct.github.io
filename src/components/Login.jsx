@@ -1,8 +1,7 @@
 // src/components/Login.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Header from './Header';
-import Footer from './Footer';
+// Header global se renderiza en App.jsx
 
 function Login() {
     const [formData, setFormData] = useState({
@@ -39,37 +38,34 @@ function Login() {
             
             // Simular delay de red
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Verificar si es usuario admin @duocuc.cl
-            const isAdminUser = formData.email.endsWith('@duocuc.cl');
-            
-            if (isAdminUser) {
-                // Usuario admin - redirigir al panel de administración
+            // Admin: solo emails exactos y contraseña 'admin'
+            const adminEmails = [
+                'a.rios@alpha.com',
+                'd.rodri@alpha.com',
+                'a.olguin@alpha.com'
+            ];
+            if (adminEmails.includes(formData.email) && formData.password === 'admin') {
                 setLoginStatus('success-admin');
-                
-                // Guardar información de usuario en localStorage
                 localStorage.setItem('authToken', 'admin-token');
                 localStorage.setItem('userEmail', formData.email);
                 localStorage.setItem('userRole', 'admin');
-                
-                // Redirigir al panel de admin después de un breve delay
-                setTimeout(() => {
-                    navigate('/admin');
-                }, 1500);
-                
+                navigate('/admin');
             } else {
-                // Usuario normal - redirigir a la página principal
-                setLoginStatus('success-user');
-                
-                // Guardar información de usuario en localStorage
-                localStorage.setItem('authToken', 'user-token');
-                localStorage.setItem('userEmail', formData.email);
-                localStorage.setItem('userRole', 'user');
-                
-                // Redirigir a la página principal después de un breve delay
-                setTimeout(() => {
-                    navigate('/');
-                }, 1500);
+                // Buscar usuario registrado en localStorage
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const found = users.find(u => u.email === formData.email && u.password === formData.password);
+                if (found) {
+                    setLoginStatus('success-user');
+                    localStorage.setItem('authToken', 'user-token');
+                    localStorage.setItem('userEmail', found.email);
+                    localStorage.setItem('userRole', 'user');
+                    // Mostrar mensaje y redirigir al Home
+                    setTimeout(() => {
+                        navigate('/');
+                    }, 1200);
+                } else {
+                    setLoginStatus('Correo o contraseña incorrectos');
+                }
             }
             
             // Resetear formulario
@@ -85,23 +81,11 @@ function Login() {
         }
     };
 
-    // Lista de usuarios demo para testing
-    const demoUsers = [
-        { email: 'admin@duocuc.cl', password: 'admin123', role: 'Administrador' },
-        { email: 'ventas@duocuc.cl', password: 'ventas123', role: 'Personal de Ventas' },
-        { email: 'usuario@ejemplo.com', password: 'user123', role: 'Usuario Normal' }
-    ];
-
-    const fillDemoUser = (email, password) => {
-        setFormData({
-            email,
-            password
-        });
-    };
+    // Eliminado: usuarios de prueba y autolleno
 
     return (
         <div className="Login">
-            <Header />
+            
             
             {/* hero area */}
             <div className="hero-area hero-bg">
@@ -111,7 +95,6 @@ function Login() {
                             <div className="hero-text">
                                 <div className="hero-text-tablecell">
                                     <h1>Inicia Sesión</h1>
-                                    <p className="subtitle">Accede a tu cuenta Alpha Squad</p>
                                 </div>
                             </div>
                         </div>
@@ -127,23 +110,6 @@ function Login() {
                             <div className="col-lg-5 col-md-7 text-center">
                                 <div className="login-card" style={{padding: '40px 30px', boxShadow: '0 0 20px rgba(0,0,0,0.1)', borderRadius: '10px'}}>
                                     <h2 className="producto-titulo mb-4">Iniciar Sesión</h2>
-                                    
-                                    {/* Usuarios de demo para testing */}
-                                    <div className="demo-users mb-4">
-                                        <h6 className="text-muted mb-3">Usuarios de Prueba:</h6>
-                                        <div className="d-flex flex-wrap gap-2 justify-content-center">
-                                            {demoUsers.map((user, index) => (
-                                                <button
-                                                    key={index}
-                                                    className="btn btn-outline-secondary btn-sm"
-                                                    onClick={() => fillDemoUser(user.email, user.password)}
-                                                    title={`${user.role} - ${user.email}`}
-                                                >
-                                                    {user.role}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
 
                                     <form onSubmit={handleSubmit}>
                                         <div className="form-group">
@@ -176,12 +142,12 @@ function Login() {
                                             disabled={loading}
                                         >
                                             {loading ? (
-                                                <>
-                                                    <div className="spinner-border spinner-border-sm me-2" role="status">
-                                                        <span className="visually-hidden">Cargando...</span>
-                                                    </div>
-                                                    Iniciando sesión...
-                                                </>
+                                                <span style={{display:'inline-flex',alignItems:'center'}}>
+                                                    <div className="spinner-border spinner-border-sm me-2" role="status"></div>
+                                                    <span className="static-loading-text" style={{display:'inline-block'}}>
+                                                        Cargando...
+                                                    </span>
+                                                </span>
                                             ) : (
                                                 <>
                                                     <i className="fas fa-sign-in-alt"></i> Iniciar Sesión
@@ -189,22 +155,12 @@ function Login() {
                                             )}
                                         </button>
                                     </form>
-                                    
-                                    {/* Información sobre acceso admin */}
-                                    <div className="admin-info mt-3 p-3 bg-light rounded">
-                                        <small className="text-muted">
-                                            <i className="fas fa-info-circle me-1"></i>
-                                            <strong>Acceso Admin:</strong> Usa un correo @duocuc.cl para acceder al panel de administración
-                                        </small>
-                                    </div>
 
                                     {/* Enlaces adicionales */}
                                     <div className="mt-4 text-center">
                                         <p>¿No tienes cuenta? <Link to="/contact" className="text-primary">Regístrate aquí</Link></p>
-                                        <p className="mt-2">
-                                            <Link to="/forgot-password" className="text-muted">
-                                                ¿Olvidaste tu contraseña?
-                                            </Link>
+                                        <p className="mt-2 text-muted">
+                                            ¿Olvidaste tu contraseña?
                                         </p>
                                     </div>
 
@@ -220,7 +176,7 @@ function Login() {
                                             {loginStatus === 'success-admin' 
                                                 ? '✅ ¡Acceso de administrador concedido! Redirigiendo al panel...' 
                                                 : loginStatus === 'success-user'
-                                                ? '✅ ¡Inicio de sesión exitoso! Redirigiendo...'
+                                                ? '✅ Sesión iniciada. Redirigiendo...'
                                                 : `❌ ${loginStatus}`
                                             }
                                         </div>
@@ -231,8 +187,6 @@ function Login() {
                     </div>
                 </div>
             </div>
-
-            <Footer />
         </div>
     );
 }

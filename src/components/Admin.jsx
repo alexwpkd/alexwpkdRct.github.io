@@ -1,7 +1,6 @@
 // src/components/Admin.jsx
 import React, { useState } from 'react';
-import Header from './Header';
-import Footer from './Footer';
+// Header/Footer globales se renderizan en App.jsx
 
 function Admin() {
     // Estados principales
@@ -236,7 +235,6 @@ function Admin() {
 
     return (
         <div className="Admin">
-            <Header />
             
             {/* Hero Section */}
             <div className="hero-area hero-bg">
@@ -669,7 +667,7 @@ function Admin() {
                 )}
             </div>
 
-            <Footer />
+            {/* Footer global se renderiza en App.jsx */}
         </div>
     );
 }

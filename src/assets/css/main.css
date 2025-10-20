@@ -1,3 +1,16 @@
+
+.static-loading-text {
+  animation: none !important;
+  -webkit-animation: none !important;
+  -moz-animation: none !important;
+  -o-animation: none !important;
+  transition: none !important;
+  font-weight: 500;
+  transform: none !important;
+  rotate: none !important;
+  position: relative !important;
+  display: inline-block !important;
+}
 /*
 Template Name: Fruitkha - Responsive Bootstrap4 Shop Template
 Template URI: 

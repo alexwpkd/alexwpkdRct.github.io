@@ -123,7 +123,32 @@ function Contact() {
             setPasswordError(validatePassword(formData.password));
             return;
         }
-        alert('Formulario enviado correctamente');
+        // Guardar usuario en localStorage para futuros inicios de sesión
+        try {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            // Evitar duplicados por email
+            if (users.some(u => u.email === formData.email)) {
+                alert('Este correo ya está registrado. Puedes iniciar sesión.');
+            } else {
+                const newUser = {
+                    name: formData.name,
+                    lastname: formData.lastname,
+                    rut: formData.phone,
+                    email: formData.email,
+                    region: formData.region,
+                    comuna: formData.comuna,
+                    address: formData.address,
+                    password: formData.password
+                };
+                users.push(newUser);
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('Registro exitoso. Ya puedes iniciar sesión.');
+            }
+        } catch (err) {
+            console.error('Error guardando usuario:', err);
+            alert('Hubo un problema guardando tu registro. Intenta nuevamente.');
+        }
+
         setFormData({
             name: '',
             lastname: '',

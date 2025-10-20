@@ -1,8 +1,7 @@
 // src/components/News.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Header from './Header';
-import Footer from './Footer';
+// Header/Footer globales se controlan desde App.jsx
 import images from '../assets/images/index.js';
 
 function News() {
@@ -82,7 +81,6 @@ function News() {
 
     return (
         <div className="News">
-            <Header />
             
             {/* breadcrumb-section */}
             <div className="breadcrumb-section breadcrumb-bg">
@@ -212,8 +210,6 @@ function News() {
                 </div>
             </div>
             {/* end logo carousel */}
-
-            <Footer />
         </div>
     );
 }

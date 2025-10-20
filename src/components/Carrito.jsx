@@ -1,10 +1,10 @@
 import React from 'react';
 import Hero from './Hero.jsx';
-import images from '../assets/images/index.js';
+// import images from '../assets/images/index.js';
 
-function Carrito({ carrito, agregarAlCarrito, eliminarDelCarrito, actualizarCantidad }) {
+function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad }) {
   // Hero con imagen de fondo y título ARSENAL
-  const heroBg = images['products/product-img-1'] || '';
+  // const heroBg = images['products/product-img-1'] || '';
 
   if (!carrito || carrito.length === 0) {
     return (
