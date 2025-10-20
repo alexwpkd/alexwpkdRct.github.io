@@ -4,7 +4,7 @@ import useProductData from './ProductData.jsx';
 import Hero from './Hero.jsx';
 import '../assets/css/shop.css';
 
-function Shop() {
+function Shop({ agregarAlCarrito }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
@@ -30,11 +30,6 @@ function Shop() {
     const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
     const startIndex = (currentPage - 1) * productsPerPage;
     const currentProducts = filteredProducts.slice(startIndex, startIndex + productsPerPage);
-
-    const handleAddToCart = (producto) => {
-        console.log('Producto agregado:', producto);
-        alert(`${producto.nombre} agregado al carrito`);
-    };
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -136,14 +131,24 @@ function Shop() {
                                             <p className="product-price">
                                                 <span>Precio</span> {CLP(producto.precio)}
                                             </p>
-                                            <button 
-                                                className={`cart-btn ${!producto.enStock ? 'disabled' : ''}`}
-                                                onClick={() => producto.enStock && handleAddToCart(producto)}
-                                                disabled={!producto.enStock}
-                                            >
-                                                <i className="fas fa-shopping-cart"></i> 
-                                                {producto.enStock ? 'Agregar' : 'Agotado'}
-                                            </button>
+                                                                                        <button 
+                                                                                                className={`cart-btn ${!producto.enStock ? 'disabled' : ''}`}
+                                                                                                onClick={() => {
+                                                                                                    if (producto.enStock) {
+                                                                                                        agregarAlCarrito({
+                                                                                                            id: producto.id,
+                                                                                                            nombre: producto.nombre,
+                                                                                                            precio: producto.precio,
+                                                                                                            stock: producto.stock || producto.enStock || 1
+                                                                                                        }, 1);
+                                                                                                        alert(`${producto.nombre} agregado al carrito`);
+                                                                                                    }
+                                                                                                }}
+                                                                                                disabled={!producto.enStock}
+                                                                                        >
+                                                                                                <i className="fas fa-shopping-cart"></i> 
+                                                                                                {producto.enStock ? 'Agregar' : 'Agotado'}
+                                                                                        </button>
                                         </div>
                                     </div>
                                 </div>

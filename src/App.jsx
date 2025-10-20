@@ -10,27 +10,51 @@ import Login from './components/Login.jsx';
 import News from './components/News.jsx';
 import Admin from './components/Admin.jsx';
 import Product from './components/Product.jsx';
+import Carrito from './components/Carrito.jsx';
+import React, { useState } from 'react';
 
 export default function App() {
+  const [carrito, setCarrito] = useState([]);
+
+  function agregarAlCarrito(producto, cantidad = 1) {
+    setCarrito(prev => {
+      const existe = prev.find(item => item.id === producto.id);
+      if (existe) {
+        const nuevaCantidad = Math.min(existe.cantidad + cantidad, producto.stock || producto.enStock || 1);
+        return prev.map(item =>
+          item.id === producto.id ? { ...item, cantidad: nuevaCantidad } : item
+        );
+      }
+      return [...prev, { ...producto, cantidad: Math.min(cantidad, producto.stock || producto.enStock || 1) }];
+    });
+  }
+
+  function eliminarDelCarrito(id) {
+    setCarrito(prev => prev.filter(item => item.id !== id));
+  }
+
+  function actualizarCantidad(id, cantidad) {
+    setCarrito(prev => prev.map(item =>
+      item.id === id ? { ...item, cantidad: Math.max(1, Math.min(cantidad, item.stock || item.enStock || 1)) } : item
+    ));
+  }
+
   return (
     <div className="app">
-      {/* Header está global para todas las páginas */}
       <Header />
-      
-      {/* Routes - Cada página maneja su propio contenido */}
       <Routes>
-        <Route path="/" element={<Home/>} />           {/* ✅ Home con Hero incluido */}
-        <Route path="/about" element={<About/>} />     {/* Sin Hero */}
-        <Route path="/shop" element={<Shop/>} />       {/* Sin Hero */}
-        <Route path="/contact" element={<Contact/>} /> {/* Sin Hero */}
-        <Route path="/news" element={<News/>} />       {/* Sin Hero */}
-        <Route path="/login" element={<Login/>} />     {/* Sin Hero */}
-        <Route path="/admin" element={<Admin/>} />     {/* Sin Hero */}
-        <Route path="/product/:id" element={<Product/>} /> {/* Sin Hero */}
+        <Route path="/" element={<Home/>} />
+        <Route path="/about" element={<About/>} />
+        <Route path="/shop" element={<Shop agregarAlCarrito={agregarAlCarrito} carrito={carrito} />} />
+        <Route path="/contact" element={<Contact/>} />
+        <Route path="/news" element={<News/>} />
+        <Route path="/login" element={<Login/>} />
+        <Route path="/admin" element={<Admin/>} />
+        <Route path="/product/:id" element={<Product/>} />
+        <Route path="/carrito" element={<Carrito carrito={carrito} agregarAlCarrito={agregarAlCarrito} eliminarDelCarrito={eliminarDelCarrito} actualizarCantidad={actualizarCantidad} />} />
+        <Route path="/cart" element={<Carrito carrito={carrito} agregarAlCarrito={agregarAlCarrito} eliminarDelCarrito={eliminarDelCarrito} actualizarCantidad={actualizarCantidad} />} />
         <Route path="*" element={<div className="container text-center py-5"><h1>404 - Página no encontrada</h1></div>} />
       </Routes>
-      
-      {/* Footer está global para todas las páginas */}
       <Footer />
     </div>
   )
