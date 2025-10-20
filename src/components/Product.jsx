@@ -160,7 +160,7 @@ function Product({ agregarAlCarrito }) {
                                             </div>
                                             <h3 style={{color:'#fff'}}>{relatedProduct.name}</h3>
                                             <p className="product-price" style={{color:'#fff'}}>
-                                                <span>Precio</span> ${relatedProduct.price}
+                                                <span>Precio</span>{relatedProduct.price}
                                             </p>
                                             <Link 
                                                 to={`/product/${relatedProduct.id}`}

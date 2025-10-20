@@ -55,7 +55,7 @@
 }
 
 .single-product-item:hover {
-    border-color: #F28123;
+    border-color: white;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
     transform: translateY(-5px);
 }

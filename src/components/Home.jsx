@@ -21,8 +21,8 @@ function Home() {
                                     <h1>ALPHA SQUAD</h1>
                                     <p className="subtitle">Equipamiento táctico de elite para operaciones de precisión</p>
                                     <div className="hero-btns">
-                                        <Link to="/shop" className="boxed-btn">Explorar Tienda</Link>
-                                        <Link to="/about" className="bordered-btn">Conoce Más</Link>
+                                        <Link to="/shop" className="btn btn-custom">Explorar Tienda</Link>
+                                        <Link to="/about" className="btn btn-custom ms-2">Conoce Más</Link>
                                     </div>
                                 </div>
                             </div>
@@ -32,46 +32,7 @@ function Home() {
             </div>
             {/* end hero area */}
 
-            {/* Sección de Características */}
-            <div className="list-section pt-80 pb-80">
-                <div className="container">
-                    <div className="row text-center">
-                        <div className="col-lg-4 col-md-6">
-                            <div className="list-box">
-                                <div className="list-icon">
-                                    <i className="fas fa-shipping-fast"></i>
-                                </div>
-                                <div className="content">
-                                    <h3>Envíos Express</h3>
-                                    <p>Entrega en 24-48 horas en todo Chile</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6">
-                            <div className="list-box">
-                                <div className="list-icon">
-                                    <i className="fas fa-shield-alt"></i>
-                                </div>
-                                <div className="content">
-                                    <h3>Calidad Garantizada</h3>
-                                    <p>Productos testados y certificados</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6">
-                            <div className="list-box">
-                                <div className="list-icon">
-                                    <i className="fas fa-headset"></i>
-                                </div>
-                                <div className="content">
-                                    <h3>Soporte Expertos</h3>
-                                    <p>Asesoría técnica especializada</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {/* ...otros bloques... */}
 
             {/* Productos Destacados */}
             <div className="product-section mt-150 mb-150">
@@ -87,27 +48,73 @@ function Home() {
                     <div className="row justify-content-center">
                         {featuredProducts.map(product => (
                             <div key={product.id} className="col-lg-4 col-md-6 text-center">
-                                <div className="single-product-item">
+                                <div className="single-product-item product-bg">
                                     <div className="product-image">
                                         <Link to={`/product/${product.id}`}>
                                             <img src={images[product.imageKey]} alt={product.name} />
                                         </Link>
                                     </div>
-                                    <h3>{product.name}</h3>
-                                    <p className="product-price"><span>Precio</span> {product.price}</p>
-                                    <Link to={`/product/${product.id}`} className="cart-btn">
-                                        <i className="fas fa-eye"></i> Ver Detalles
-                                    </Link>
+                                    <div className="product-content">
+                                        <h3>{product.name}</h3>
+                                        <p className="product-price"><span>Precio</span> {product.price}</p>
+                                        <Link to={`/product/${product.id}`} className="btn btn-custom">
+                                            <i className="fas fa-eye"></i> Ver Detalles
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         ))}
                     </div>
                     <div className="row">
                         <div className="col-lg-12 text-center">
-                            <Link to="/shop" className="boxed-btn mt-4">
+                            <Link to="/shop" className="btn btn-custom mt-4">
                                 <i className="fas fa-store me-2"></i>
                                 Ver Todos los Productos
                             </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Sección CTA (si existe) */}
+            <div className="cta-section cta-bg"></div>
+
+            {/* Sección de Características (justo antes de la llamada a la acción) */}
+            <div className="list-section pt-80 pb-80" style={{ marginTop: '40px' }}>
+                <div className="container">
+                    <div className="row text-center">
+                        <div className="col-lg-4 col-md-6">
+                            <div className="list-box">
+                                <div className="list-icon" style={{ color: '#051922' }}>
+                                    <i className="fas fa-shipping-fast"></i>
+                                </div>
+                                <div className="content">
+                                    <h3>Envíos Express</h3>
+                                    <p>Entrega en 24-48 horas en todo Chile</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-lg-4 col-md-6">
+                            <div className="list-box">
+                                <div className="list-icon" style={{ color: '#051922' }}>
+                                    <i className="fas fa-shield-alt"></i>
+                                </div>
+                                <div className="content">
+                                    <h3>Calidad Garantizada</h3>
+                                    <p>Productos testados y certificados</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-lg-4 col-md-6">
+                            <div className="list-box">
+                                <div className="list-icon" style={{ color: '#051922' }}>
+                                    <i className="fas fa-headset"></i>
+                                </div>
+                                <div className="content">
+                                    <h3>Soporte Expertos</h3>
+                                    <p>Asesoría técnica especializada</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -120,10 +127,10 @@ function Home() {
                         <div className="col-lg-8 offset-lg-2 text-center">
                             <div className="cta-text">
                                 <h2>¿Listo para tu próxima misión?</h2>
-                                <p>Únete a la comunidad Alpha Squad y lleva tu equipo al siguiente nivel</p>
+                                <p style={{ color: '#737373' }}>Únete a la comunidad Alpha Squad y lleva tu equipo al siguiente nivel. Forma parte de un grupo de entusiastas. ¡Conoce, participa y potencia tu experiencia táctica!</p>
                                 <div className="cta-btns">
-                                    <Link to="/contact" className="boxed-btn">Regístrate</Link>
-                                    <Link to="/about" className="bordered-btn">Nuestra Historia</Link>
+                                    <Link to="/contact" className="btn btn-secondary">Regístrate</Link>
+                                    <Link to="/about" className="btn btn-secondary ms-2">Nuestra Historia</Link>
                                 </div>
                             </div>
                         </div>

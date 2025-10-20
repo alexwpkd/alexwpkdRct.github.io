@@ -41,7 +41,7 @@ export default function Footer() {
           <div className="container">
             <div className="row">
               <div className="col-lg-6 col-md-12">
-                <p>Copyrights © 2024 - <a>Alex Rios | Dylan Rodriguez</a>,  Derechos reservados.<br />
+                <p>Copyrights © 2024 - <a>Alex Rios | Dylan Rodriguez | Alexis Olguin</a>,  Derechos reservados.<br />
                   Distribuido por - <a href="https://themewagon.com/">Themewagon</a>
                 </p>
               </div>
