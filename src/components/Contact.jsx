@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import images from '../assets/images/index.js';
 
 function Contact() {
@@ -13,6 +14,8 @@ function Contact() {
         password: ''
     });
     const [passwordError, setPasswordError] = useState('');
+    const [rutError, setRutError] = useState('');
+    const navigate = useNavigate();
 
     // Contact info block restored
     const contactInfo = [
@@ -42,18 +45,46 @@ function Contact() {
         'Coquimbo': ['La Serena', 'Coquimbo', 'Andacollo', 'La Higuera', 'Paiguano', 'Vicuña', 'Illapel', 'Canela', 'Los Vilos', 'Salamanca', 'Ovalle', 'Combarbalá', 'Monte Patria', 'Punitaqui', 'Río Hurtado'],
         'Valparaíso': ['Valparaíso', 'Viña del Mar', 'Concón', 'Quilpué', 'Villa Alemana', 'Casablanca', 'Quintero', 'Puchuncaví', 'San Antonio', 'Cartagena', 'El Quisco', 'El Tabo', 'Santo Domingo', 'Quillota', 'La Calera', 'Hijuelas', 'La Cruz', 'Nogales', 'San Felipe', 'Llaillay', 'Catemu', 'Panquehue', 'Putaendo', 'Santa María', 'Los Andes', 'Calle Larga', 'Rinconada', 'San Esteban'],
         "Región Metropolitana": ['Santiago', 'Cerrillos', 'Cerro Navia', 'Conchalí', 'El Bosque', 'Estación Central', 'Huechuraba', 'Independencia', 'La Cisterna', 'La Florida', 'La Granja', 'La Pintana', 'La Reina', 'Las Condes', 'Lo Barnechea', 'Lo Espejo', 'Lo Prado', 'Macul', 'Maipú', 'Ñuñoa', 'Pedro Aguirre Cerda', 'Peñalolén', 'Providencia', 'Pudahuel', 'Quilicura', 'Quinta Normal', 'Recoleta', 'Renca', 'San Joaquín', 'San Miguel', 'San Ramón', 'Vitacura', 'Puente Alto', 'Pirque', 'San José de Maipo', 'Colina', 'Lampa', 'Tiltil', 'Melipilla', 'Alhué', 'Curacaví', 'María Pinto', 'San Pedro', 'Talagante', 'El Monte', 'Isla de Maipo', 'Padre Hurtado', 'Peñaflor'],
-        'O’Higgins': ['Rancagua', 'Codegua', 'Coinco', 'Coltauco', 'Doñihue', 'Graneros', 'Las Cabras', 'Machalí', 'Malloa', 'Mostazal', 'Olivar', 'Peumo', 'Pichidegua', 'Quinta de Tilcoco', 'Rengo', 'Requínoa', 'San Vicente', 'Pichilemu', 'La Estrella', 'Litueche', 'Marchihue', 'Navidad', 'Paredones', 'San Fernando', 'Chépica', 'Chimbarongo', 'Lolol', 'Nancagua', 'Palmilla', 'Peralillo', 'Placilla', 'Pumanque', 'Santa Cruz'],
+        'O\'Higgins': ['Rancagua', 'Codegua', 'Coinco', 'Coltauco', 'Doñihue', 'Graneros', 'Las Cabras', 'Machalí', 'Malloa', 'Mostazal', 'Olivar', 'Peumo', 'Pichidegua', 'Quinta de Tilcoco', 'Rengo', 'Requínoa', 'San Vicente', 'Pichilemu', 'La Estrella', 'Litueche', 'Marchihue', 'Navidad', 'Paredones', 'San Fernando', 'Chépica', 'Chimbarongo', 'Lolol', 'Nancagua', 'Palmilla', 'Peralillo', 'Placilla', 'Pumanque', 'Santa Cruz'],
         'Maule': ['Talca', 'Constitución', 'Curepto', 'Empedrado', 'Maule', 'Pelarco', 'Pencahue', 'Río Claro', 'San Clemente', 'San Rafael', 'Cauquenes', 'Chanco', 'Pelluhue', 'Curicó', 'Hualañé', 'Licantén', 'Molina', 'Rauco', 'Romeral', 'Sagrada Familia', 'Teno', 'Vichuquén', 'Linares', 'Colbún', 'Longaví', 'Parral', 'Retiro', 'San Javier', 'Villa Alegre', 'Yerbas Buenas'],
         'Ñuble': ['Chillán', 'Chillán Viejo', 'Bulnes', 'Cobquecura', 'Coelemu', 'Coihueco', 'El Carmen', 'Ninhue', 'Ñiquén', 'Pemuco', 'Pinto', 'Portezuelo', 'Quillón', 'Quirihue', 'Ránquil', 'San Carlos', 'San Fabián', 'San Ignacio', 'San Nicolás', 'Treguaco', 'Yungay'],
         'Biobío': ['Concepción', 'Coronel', 'Chiguayante', 'Florida', 'Hualpén', 'Hualqui', 'Lota', 'Penco', 'San Pedro de la Paz', 'Santa Juana', 'Talcahuano', 'Tomé', 'Cabrero', 'Laja', 'Los Ángeles', 'Mulchén', 'Nacimiento', 'Negrete', 'Quilaco', 'Quilleco', 'San Rosendo', 'Santa Bárbara', 'Tucapel', 'Yumbel', 'Alto Biobío', 'Arauco', 'Cañete', 'Contulmo', 'Curanilahue', 'Lebu', 'Los Álamos', 'Tirúa'],
         'La Araucanía': ['Temuco', 'Carahue', 'Cholchol', 'Cunco', 'Curarrehue', 'Freire', 'Galvarino', 'Gorbea', 'Lautaro', 'Loncoche', 'Melipeuco', 'Nueva Imperial', 'Padre Las Casas', 'Perquenco', 'Pitrufquén', 'Pucón', 'Saavedra', 'Teodoro Schmidt', 'Toltén', 'Vilcún', 'Villarrica', 'Angol', 'Collipulli', 'Curacautín', 'Ercilla', 'Lonquimay', 'Los Sauces', 'Lumaco', 'Purén', 'Renaico', 'Traiguén', 'Victoria'],
         'Los Ríos': ['Valdivia', 'Corral', 'Lanco', 'Los Lagos', 'Máfil', 'Mariquina', 'Paillaco', 'Panguipulli', 'La Unión', 'Futrono', 'Lago Ranco', 'Río Bueno'],
         'Los Lagos': ['Puerto Montt', 'Calbuco', 'Cochamó', 'Fresia', 'Frutillar', 'Llanquihue', 'Los Muermos', 'Maullín', 'Puerto Varas', 'Osorno', 'Puerto Octay', 'Purranque', 'Puyehue', 'Río Negro', 'San Juan de la Costa', 'San Pablo', 'Chiloé: Ancud', 'Castro', 'Chonchi', 'Curaco de Vélez', 'Dalcahue', 'Puqueldón', 'Queilén', 'Quellón', 'Quemchi', 'Quinchao'],
-        'Aysén': ['Coyhaique', 'Lago Verde', 'Aysén', 'Cisnes', 'Guaitecas', 'Cochrane', 'O’Higgins', 'Tortel', 'Chile Chico', 'Río Ibáñez'],
+        'Aysén': ['Coyhaique', 'Lago Verde', 'Aysén', 'Cisnes', 'Guaitecas', 'Cochrane', 'O\'Higgins', 'Tortel', 'Chile Chico', 'Río Ibáñez'],
         'Magallanes': ['Punta Arenas', 'Laguna Blanca', 'Río Verde', 'San Gregorio', 'Cabo de Hornos', 'Antártica', 'Porvenir', 'Primavera', 'Timaukel', 'Natales', 'Torres del Paine'],
     }), []);
 
     const comunaOptions = useMemo(() => regionesComunas[formData.region] || [], [regionesComunas, formData.region]);
+
+    // Función para validar RUT chileno
+    const validarRUT = (rut) => {
+        // Limpiar RUT
+        rut = rut.replace(/[^0-9kK]/g, '');
+        
+        if (rut.length < 2) return false;
+        
+        const cuerpo = rut.slice(0, -1);
+        const dv = rut.slice(-1).toUpperCase();
+        
+        // Validar que el cuerpo sean solo números
+        if (!/^\d+$/.test(cuerpo)) return false;
+        
+        // Calcular DV
+        let suma = 0;
+        let multiplo = 2;
+        
+        for (let i = cuerpo.length - 1; i >= 0; i--) {
+            suma += parseInt(cuerpo.charAt(i)) * multiplo;
+            multiplo = multiplo === 7 ? 2 : multiplo + 1;
+        }
+        
+        const dvEsperado = 11 - (suma % 11);
+        let dvCalculado = dvEsperado === 11 ? '0' : dvEsperado === 10 ? 'K' : dvEsperado.toString();
+        
+        return dvCalculado === dv;
+    };
 
     // Password validation
     const validatePassword = (value) => {
@@ -88,6 +119,13 @@ function Contact() {
         if (name === 'phone') {
             // RUT: solo dígitos y K, en mayúscula
             value = value.toUpperCase().replace(/[^0-9K]/g, '');
+            // Validar RUT en tiempo real
+            if (value.length >= 2) {
+                const rutValido = validarRUT(value);
+                setRutError(rutValido ? '' : 'RUT inválido');
+            } else {
+                setRutError('');
+            }
         }
         if (name === 'email') {
             // recortar espacios
@@ -107,6 +145,13 @@ function Contact() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        
+        // Validar RUT
+        if (!validarRUT(formData.phone)) {
+            setRutError('RUT inválido. Por favor ingresa un RUT válido');
+            return;
+        }
+
         // Validaciones básicas extra
         const emailOk = /.+@.+/.test(formData.email);
         if (!emailOk) {
@@ -123,43 +168,59 @@ function Contact() {
             setPasswordError(validatePassword(formData.password));
             return;
         }
+
         // Guardar usuario en localStorage para futuros inicios de sesión
         try {
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            // Evitar duplicados por email
-            if (users.some(u => u.email === formData.email)) {
-                alert('Este correo ya está registrado. Puedes iniciar sesión.');
-            } else {
-                const newUser = {
-                    name: formData.name,
-                    lastname: formData.lastname,
-                    rut: formData.phone,
-                    email: formData.email,
-                    region: formData.region,
-                    comuna: formData.comuna,
-                    address: formData.address,
-                    password: formData.password
-                };
-                users.push(newUser);
-                localStorage.setItem('users', JSON.stringify(users));
-                alert('Registro exitoso. Ya puedes iniciar sesión.');
+            const regularUsers = JSON.parse(localStorage.getItem('regular_users') || '[]');
+            
+            // Verificar si el usuario ya existe
+            if (regularUsers.some(user => user.email === formData.email)) {
+                alert('❌ Este correo ya está registrado. Puedes iniciar sesión.');
+                return;
             }
+
+            const newUser = {
+                id: Date.now(),
+                name: `${formData.name} ${formData.lastname}`,
+                email: formData.email,
+                password: formData.password,
+                phone: formData.phone,
+                region: formData.region,
+                comuna: formData.comuna,
+                address: formData.address,
+                status: 'Activo',
+                registerDate: new Date().toISOString().split('T')[0],
+                role: 'user'
+            };
+
+            const updatedUsers = [...regularUsers, newUser];
+            localStorage.setItem('regular_users', JSON.stringify(updatedUsers));
+            
+            alert('✅ Registro exitoso. Ya puedes iniciar sesión.');
+
+            // Limpiar formulario
+            setFormData({
+                name: '',
+                lastname: '',
+                phone: '',
+                email: '',
+                region: '',
+                comuna: '',
+                address: '',
+                password: ''
+            });
+            setPasswordError('');
+            setRutError('');
+
+            // Redirigir al login después de 2 segundos
+            setTimeout(() => {
+                navigate('/login');
+            }, 2000);
+
         } catch (err) {
             console.error('Error guardando usuario:', err);
             alert('Hubo un problema guardando tu registro. Intenta nuevamente.');
         }
-
-        setFormData({
-            name: '',
-            lastname: '',
-            phone: '',
-            email: '',
-            region: '',
-            comuna: '',
-            address: '',
-            password: ''
-        });
-        setPasswordError('');
     };
 
     return (
@@ -252,6 +313,13 @@ function Contact() {
                                             required 
                                         />
                                     </div>
+                                    {rutError && (
+                                        <div className="contact-form-row">
+                                            <small className="contact-password-error" style={{color: 'red', fontSize: '12px'}}>
+                                                {rutError}
+                                            </small>
+                                        </div>
+                                    )}
                                     <div className="contact-form-row">
                                         <select 
                                             name="region" 
@@ -312,7 +380,7 @@ function Contact() {
                                         {passwordError && <small className="contact-password-error">{passwordError}</small>}
                                     </div>
                                     <input type="hidden" name="token" value="FsWga4&@f6aw" />
-                                    <p><input type="submit" value="Enviar" className="boxed-btn" /></p>
+                                    <p><input type="submit" value="Registrarse" className="boxed-btn" /></p>
                                 </form>
                             </div>
                         </div>
