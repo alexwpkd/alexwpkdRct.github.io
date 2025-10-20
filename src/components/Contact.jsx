@@ -320,7 +320,7 @@ function Contact() {
                             <div className="contact-form-wrap">
                                 {contactInfo.map((info, index) => (
                                     <div key={index} className="contact-form-box" style={{marginBottom: '30px'}}>
-                                        <h4><i className={info.icon}></i> {info.title}</h4>
+                                        <h4><i className={info.icon} style={{color:'#051922'}}></i> {info.title}</h4>
                                         <p dangerouslySetInnerHTML={{ __html: info.content }}></p>
                                     </div>
                                 ))}

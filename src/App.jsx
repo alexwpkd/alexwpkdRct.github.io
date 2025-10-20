@@ -50,7 +50,7 @@ export default function App() {
         <Route path="/news" element={<News/>} />
         <Route path="/login" element={<Login/>} />
         <Route path="/admin" element={<Admin/>} />
-        <Route path="/product/:id" element={<Product/>} />
+  <Route path="/product/:id" element={<Product agregarAlCarrito={agregarAlCarrito} />} />
         <Route path="/carrito" element={<Carrito carrito={carrito} agregarAlCarrito={agregarAlCarrito} eliminarDelCarrito={eliminarDelCarrito} actualizarCantidad={actualizarCantidad} />} />
         <Route path="/cart" element={<Carrito carrito={carrito} agregarAlCarrito={agregarAlCarrito} eliminarDelCarrito={eliminarDelCarrito} actualizarCantidad={actualizarCantidad} />} />
         <Route path="*" element={<div className="container text-center py-5"><h1>404 - Página no encontrada</h1></div>} />

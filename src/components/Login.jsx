@@ -137,7 +137,7 @@ function Login() {
                                         
                                         <button 
                                             type="submit" 
-                                            className="cart-btn" 
+                                            className="cart-btn btn-custom" 
                                             style={{width: '100%'}}
                                             disabled={loading}
                                         >
@@ -158,7 +158,7 @@ function Login() {
 
                                     {/* Enlaces adicionales */}
                                     <div className="mt-4 text-center">
-                                        <p>¿No tienes cuenta? <Link to="/contact" className="text-primary">Regístrate aquí</Link></p>
+                                        <p><span style={{color:'#fff', fontWeight:'bold'}}>¿No tienes cuenta?</span> <Link to="/contact" className="text-primary">Regístrate aquí</Link></p>
                                         <p className="mt-2 text-muted">
                                             ¿Olvidaste tu contraseña?
                                         </p>

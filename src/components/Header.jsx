@@ -53,9 +53,6 @@ export default function Header() {
                   <li className={isActive('/shop')}>
                     <NavLink to="/shop" onClick={closeMenu}>Tienda</NavLink>
                   </li>
-                  <li className={isActive('/news')}>
-                    <NavLink to="/news" onClick={closeMenu}>News</NavLink>
-                  </li>
                   <li>
                     <div className="header-icons">
                       <NavLink className="shopping-cart" to="/cart" onClick={closeMenu}>

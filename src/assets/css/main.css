@@ -1,3 +1,19 @@
+/* Fondo para la caja de productos en la tienda */
+.product-bg {
+  background: linear-gradient(135deg, #051922 0%, #243b4a 100%);
+}
+/* Botón personalizado reutilizable */
+.btn-custom {
+  background-color: #737373 !important;
+  color: #051922 !important;
+  border-radius: 50px !important;
+  transition: 0.3s;
+}
+
+.btn-custom:hover {
+  background-color: #737373 !important;
+  color: #fff !important;
+}
 
 .static-loading-text {
   animation: none !important;
@@ -2442,6 +2458,7 @@ ul.social-link-team li a {
 .product-image {
   padding: 30px;
   padding-bottom: 0;
+  background-color: #0E2F3A;
 }
 
 .product-image img {

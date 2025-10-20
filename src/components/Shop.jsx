@@ -90,7 +90,7 @@ function Shop({ agregarAlCarrito }) {
                     </div>
                     <div className="col-lg-6 mb-3">
                         <div className="category-selector">
-                            <label className="form-label">Filtrar por categoría:</label>
+                            <label className="form-label" style={{color:'#fff', fontWeight:'bold'}}>Filtrar por categoría:</label>
                             <select 
                                 className="form-select category-dropdown"
                                 value={selectedCategory}
@@ -132,7 +132,7 @@ function Shop({ agregarAlCarrito }) {
                                                 <span>Precio</span> {CLP(producto.precio)}
                                             </p>
                                                                                         <button 
-                                                                                                className={`cart-btn ${!producto.enStock ? 'disabled' : ''}`}
+                                                                                                className={`cart-btn btn-custom ${!producto.enStock ? 'disabled' : ''}`}
                                                                                                 onClick={() => {
                                                                                                     if (producto.enStock) {
                                                                                                         agregarAlCarrito({

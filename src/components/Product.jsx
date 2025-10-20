@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import images from '../assets/images/index.js';
 import useProductData from './ProductData.jsx';
+import Hero from './Hero.jsx';
 
-function Product() {
+function Product({ agregarAlCarrito }) {
     const { id } = useParams();
     const { getProductById, getProductsByCategory } = useProductData();
     const [quantity, setQuantity] = useState(1);
@@ -36,9 +37,15 @@ function Product() {
         .slice(0, 3);
 
     const handleAddToCart = () => {
-        console.log('Agregando al carrito:', { ...product, quantity });
-        alert(`${quantity} ${product.name}(s) agregado(s) al carrito`);
-        // Aquí puedes conectar con tu contexto del carrito
+        if (product.inStock) {
+            agregarAlCarrito({
+                id: product.id,
+                nombre: product.name,
+                precio: product.priceNumber,
+                stock: product.stock,
+            }, quantity);
+            alert(`${product.name} agregado al carrito`);
+        }
     };
 
     const handleQuantityChange = (e) => {
@@ -50,14 +57,7 @@ function Product() {
 
     return (
         <div className="Product">
-            
-            {/* breadcrumb */}
-            <div className="breadcrumb-section breadcrumb-bg">
-                <div className="container text-center">
-                    <h1>Detalle del Producto</h1>
-                    <p>Revisa la información detallada de tu equipo táctico.</p>
-                </div>
-            </div>
+            <Hero title="Detalle del Producto" />
 
             {/* single product */}
             <div className="single-product mt-150 mb-150">
@@ -74,10 +74,10 @@ function Product() {
                         <div className="col-md-7">
                             <div className="single-product-content">
                                 <h3>{product.name}</h3>
-                                <p className="single-product-pricing">
-                                    <span>Precio</span> {product.price}
+                                <p className="single-product-pricing" style={{color:'#737373', fontWeight:'bold', fontSize:'1.3em'}}>
+                                    <span style={{color:'#737373', fontWeight:'bold'}}>Precio</span> {product.price}
                                 </p>
-                                <p>{product.description}</p>
+                                <p style={{color:'#737373', fontWeight:'bold'}}>{product.description}</p>
                                 
                                 <div className="single-product-form">
                                     <form onSubmit={(e) => { e.preventDefault(); handleAddToCart(); }}>
@@ -85,29 +85,23 @@ function Product() {
                                             type="number" 
                                             placeholder="1" 
                                             min="1" 
+                                            max={product.stock}
                                             value={quantity}
                                             onChange={handleQuantityChange}
                                             disabled={!product.inStock}
                                         />
                                         <button 
                                             type="submit" 
-                                            className={`cart-btn ${!product.inStock ? 'disabled' : ''}`}
+                                            className={`cart-btn btn-custom ${!product.inStock ? 'disabled' : ''}`}
                                             disabled={!product.inStock}
                                         >
                                             <i className="fas fa-shopping-cart"></i> 
-                                            {product.inStock ? 'Agregar al carrito' : 'Agotado'}
+                                            {product.inStock ? 'Agregar al arsenal' : 'Agotado'}
                                         </button>
                                     </form>
-                                    <p><strong>Categoría:</strong> {
-                                        product.category === 'rifles' ? 'Rifles de Asalto' :
-                                        product.category === 'subfusiles' ? 'Subfusiles' :
-                                        product.category === 'pistolas' ? 'Pistolas' :
-                                        product.category === 'equipamiento' ? 'Equipamiento' :
-                                        product.category === 'proteccion' ? 'Protección' :
-                                        product.category === 'accesorios' ? 'Accesorios' :
-                                        'General'
-                                    }</p>
-                                    <p><strong>Estado:</strong> 
+                                    {/* Categoría eliminada */}
+                                    <p>
+                                        <strong>Estado:</strong> 
                                         <span className={product.inStock ? 'text-success' : 'text-danger'}>
                                             {product.inStock ? ' En stock' : ' Agotado'}
                                         </span>
@@ -152,7 +146,7 @@ function Product() {
                             <div className="row mt-50">
                                 {relatedProducts.map(relatedProduct => (
                                     <div key={relatedProduct.id} className="col-lg-4 col-md-6 text-center">
-                                        <div className="single-product-item">
+                                        <div className="single-product-item product-bg">
                                             <div className="product-image">
                                                 <Link to={`/product/${relatedProduct.id}`}>
                                                     <img 
@@ -164,13 +158,13 @@ function Product() {
                                                     <div className="out-of-stock">Agotado</div>
                                                 )}
                                             </div>
-                                            <h3>{relatedProduct.name}</h3>
-                                            <p className="product-price">
-                                                <span>Precio</span> {relatedProduct.price}
+                                            <h3 style={{color:'#fff'}}>{relatedProduct.name}</h3>
+                                            <p className="product-price" style={{color:'#fff'}}>
+                                                <span>Precio</span> ${relatedProduct.price}
                                             </p>
                                             <Link 
                                                 to={`/product/${relatedProduct.id}`}
-                                                className="cart-btn"
+                                                className="cart-btn btn-custom"
                                             >
                                                 <i className="fas fa-eye"></i> Ver Detalles
                                             </Link>

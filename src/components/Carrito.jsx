@@ -11,8 +11,9 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad }) {
       <>
         <Hero title="ARMAMENTO" />
         <div className="container py-5 text-center">
-          <h2>Tu carrito está vacío</h2>
-          <p>Agrega productos desde la tienda.</p>
+          <h2 style={{color:'#737373'}}>Tu carrito está vacío</h2>
+          <p style={{color:'#737373', fontWeight:'bold', display:'inline'}}>Agrega productos desde la tienda.</p>
+          <a href="/shop" className="btn btn-custom ms-3" style={{verticalAlign:'middle'}}>Ir a tienda</a>
         </div>
       </>
     );
@@ -46,27 +47,27 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad }) {
         <table className="table table-bordered mt-4">
           <thead>
             <tr>
-              <th>Producto</th>
-              <th>Precio</th>
-              <th>Cantidad</th>
-              <th>Subtotal</th>
-              <th>Acciones</th>
+              <th style={{color:'#737373'}}>Producto</th>
+              <th style={{color:'#737373'}}>Precio</th>
+              <th style={{color:'#737373'}}>Cantidad</th>
+              <th style={{color:'#737373'}}>Subtotal</th>
+              <th style={{color:'#737373'}}>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {carrito.map(item => (
               <tr key={item.id}>
-                <td>{item.name || item.nombre}</td>
-                <td>${getPrice(item)}</td>
-                <td>
+                <td style={{color:'#737373'}}>{item.name || item.nombre}</td>
+                <td style={{color:'#737373'}}>${getPrice(item)}</td>
+                <td style={{color:'#737373'}}>
                   <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                     <button className="btn btn-secondary btn-sm" onClick={() => handleDecrement(item)}>-</button>
                     <span style={{margin: '0 10px', minWidth: '30px', textAlign: 'center'}}>{item.cantidad}</span>
                     <button className="btn btn-secondary btn-sm" onClick={() => handleIncrement(item)} disabled={item.cantidad >= getStock(item)}>+</button>
                   </div>
                 </td>
-                <td>${getPrice(item) * item.cantidad}</td>
-                <td>
+                <td style={{color:'#737373'}}>${getPrice(item) * item.cantidad}</td>
+                <td style={{color:'#737373'}}>
                   <button className="btn btn-danger btn-sm" onClick={() => eliminarDelCarrito(item.id)}>
                     Eliminar
                   </button>
@@ -76,9 +77,10 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad }) {
           </tbody>
         </table>
         <div className="text-right">
-          <h4>Subtotal: ${total}</h4>
-          <h5>IVA (19%): ${iva}</h5>
-          <h4>Total con IVA: ${totalConIva}</h4>
+          <h4 style={{color:'#737373'}}>Subtotal: ${total}</h4>
+          <h5 style={{color:'#737373'}}>IVA (19%): ${iva}</h5>
+          <h4 style={{color:'#737373'}}>Total: ${totalConIva}</h4>
+          <button className="btn btn-custom mt-3" onClick={() => alert('¡Compra exitosa!')}>Confirmar compra</button>
         </div>
       </div>
     </>
