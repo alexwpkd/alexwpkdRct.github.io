@@ -124,15 +124,11 @@ function Shop({ agregarAlCarrito }) {
                                             {!producto.enStock && (
                                                 <div className="out-of-stock">Agotado</div>
                                             )}
-                                        </div>
-                                        <div className="product-content">
-                                            <h3>{producto.nombre}</h3>
-                                            <p className="product-description">{producto.descripcion}</p>
-                                            <p className="product-price">
-                                                <span>Precio</span> {CLP(producto.precio)}
-                                            </p>
+                                        </div>                                        <div className="product-content">
+                                            <h3 className="text-white-custom">{producto.nombre}</h3>                                            <p className="product-description text-white-custom">{producto.descripcion}</p><p className="product-price text-white-custom">
+                                                <span className="text-white-custom">Precio</span> {CLP(producto.precio)}                                            </p>
                                                                                         <button 
-                                                                                                className={`cart-btn btn-custom ${!producto.enStock ? 'disabled' : ''}`}
+                                                                                                className={`cart-btn btn-custom text-white-custom ${!producto.enStock ? 'disabled' : ''}`}
                                                                                                 onClick={() => {
                                                                                                     if (producto.enStock) {
                                                                                                         agregarAlCarrito({
@@ -158,13 +154,12 @@ function Shop({ agregarAlCarrito }) {
                                 <div className="no-products-found">
                                     <i className="fas fa-search fa-3x text-muted mb-3"></i>
                                     <h4>No se encontraron productos</h4>
-                                    <p>No hay productos en esta categoría.</p>
-                                    <button 
+                                    <p>No hay productos en esta categoría.</p>                                    <button 
                                         className="btn btn-primary mt-2"
                                         onClick={() => handleCategoryChange('all')}
                                     >
                                         <i className="fas fa-store me-2"></i>
-                                        Ver todos los productos
+                                        <span className="text-white-custom">Ver todos los productos</span>
                                     </button>
                                 </div>
                             </div>

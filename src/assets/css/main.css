@@ -1,3 +1,17 @@
+/* Clase para texto blanco reutilizable */
+.text-white-custom {
+  color: #ffffff !important;
+}
+
+/* Sobrescribir color de precios */
+p.product-price.text-white-custom {
+  color: #ffffff !important;
+}
+
+p.product-price.text-white-custom span {
+  color: #ffffff !important;
+}
+
 /* Fondo para la caja de productos en la tienda */
 .product-bg {
   background: linear-gradient(135deg, #051922 0%, #243b4a 100%);

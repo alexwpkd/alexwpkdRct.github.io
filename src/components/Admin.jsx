@@ -200,27 +200,25 @@ function Admin() {
                             </div>
                             <div className="card-body">
                                 <div className="table-responsive">
-                                    <table className="table table-bordered table-hover">
-                                        <thead className="thead-dark">
+                                    <table className="table table-bordered table-hover">                                        <thead className="thead-dark">
                                             <tr>
-                                                <th>ID</th>
-                                                <th>Producto</th>
-                                                <th>Categoría</th>
-                                                <th>Precio</th>
-                                                <th>Stock</th>
-                                                <th>Estado</th>
-                                                <th>Ventas</th>
-                                                <th>Última Reposición</th>
-                                                <th>Acciones</th>
+                                                <th className="text-white-custom">ID</th>
+                                                <th className="text-white-custom">Producto</th>
+                                                <th className="text-white-custom">Categoría</th>
+                                                <th className="text-white-custom">Precio</th>
+                                                <th className="text-white-custom">Stock</th>
+                                                <th className="text-white-custom">Estado</th>
+                                                <th className="text-white-custom">Ventas</th>
+                                                <th className="text-white-custom">Última Reposición</th>
+                                                <th className="text-white-custom">Acciones</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            {inventory.map(product => (
+                                        <tbody>                                            {inventory.map(product => (
                                                 <tr key={product.id}>
-                                                    <td>{product.id}</td>
-                                                    <td><strong>{product.name}</strong></td>
-                                                    <td>{product.category}</td>
-                                                    <td>${product.price.toLocaleString('es-CL')} CLP</td>
+                                                    <td className="text-white-custom">{product.id}</td>
+                                                    <td><strong className="text-white-custom">{product.name}</strong></td>
+                                                    <td className="text-white-custom">{product.category}</td>
+                                                    <td className="text-white-custom">${product.price.toLocaleString('es-CL')} CLP</td>
                                                     <td>
                                                         <span className={`badge ${getStatusBadge(product.stock === 0 ? 'Agotado' : (product.stock < 3 ? 'Stock crítico' : (product.stock < 5 ? 'Stock bajo' : 'En stock')))}`}>
                                                             {product.stock} unidades
@@ -229,10 +227,9 @@ function Admin() {
                                                     <td>
                                                         <span className={`badge ${getStatusBadge(product.stock === 0 ? 'Agotado' : (product.stock < 3 ? 'Stock crítico' : (product.stock < 5 ? 'Stock bajo' : 'En stock')))}`}>
                                                             {product.stock === 0 ? 'Agotado' : (product.stock < 3 ? 'Stock crítico' : (product.stock < 5 ? 'Stock bajo' : 'En stock'))}
-                                                        </span>
-                                                    </td>
-                                                    <td>-</td>
-                                                    <td>{product.lastRestock ? product.lastRestock : '-'}</td>
+                                                        </span>                                                    </td>
+                                                    <td className="text-white-custom">-</td>
+                                                    <td className="text-white-custom">{product.lastRestock ? product.lastRestock : '-'}</td>
                                                     <td>
                                                         <div className="input-group input-group-sm" style={{width: '200px'}}>
                                                             <input 

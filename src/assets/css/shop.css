@@ -129,6 +129,15 @@
     margin-bottom: 5px;
 }
 
+/* Sobrescribir colores para texto blanco */
+.product-price.text-white-custom {
+    color: #ffffff !important;
+}
+
+.product-price.text-white-custom span {
+    color: #ffffff !important;
+}
+
 .cart-btn {
     padding: 12px 25px;
     background-color: #F28123;

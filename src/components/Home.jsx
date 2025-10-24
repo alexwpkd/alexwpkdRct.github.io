@@ -19,10 +19,9 @@ function Home() {
                             <div className="hero-text">
                                 <div className="hero-text-tablecell">
                                     <h1>ALPHA SQUAD</h1>
-                                    <p className="subtitle">Equipamiento táctico de elite para operaciones de precisión</p>
-                                    <div className="hero-btns">
-                                        <Link to="/shop" className="btn btn-custom">Explorar Tienda</Link>
-                                        <Link to="/about" className="btn btn-custom ms-2">Conoce Más</Link>
+                                    <p className="subtitle">Equipamiento táctico de elite para operaciones de precisión</p>                                    <div className="hero-btns">
+                                        <Link to="/shop" className="btn btn-custom text-white-custom">Explorar Tienda</Link>
+                                        <Link to="/about" className="btn btn-custom ms-2 text-white-custom">Conoce Más</Link>
                                     </div>
                                 </div>
                             </div>
@@ -38,10 +37,9 @@ function Home() {
             <div className="product-section mt-150 mb-150">
                 <div className="container">
                     <div className="row">
-                        <div className="col-lg-8 offset-lg-2 text-center">
-                            <div className="section-title">
+                        <div className="col-lg-8 offset-lg-2 text-center">                                    <div className="section-title">
                                 <h3><span className="orange-text">Productos</span> Destacados</h3>
-                                <p>Lo más vendido de nuestro catálogo táctico</p>
+                                <p className="text-white-custom">Lo más vendido de nuestro catálogo táctico</p>
                             </div>
                         </div>
                     </div>
@@ -53,11 +51,9 @@ function Home() {
                                         <Link to={`/product/${product.id}`}>
                                             <img src={images[product.imageKey]} alt={product.name} />
                                         </Link>
-                                    </div>
-                                    <div className="product-content">
-                                        <h3>{product.name}</h3>
-                                        <p className="product-price"><span>Precio</span> {product.price}</p>
-                                        <Link to={`/product/${product.id}`} className="btn btn-custom">
+                                    </div>                                    <div className="product-content">
+                                        <h3 className="text-white-custom">{product.name}</h3>                                        <p className="product-price text-white-custom"><span className="text-white-custom">Precio</span> {product.price}</p>
+                                        <Link to={`/product/${product.id}`} className="btn btn-custom text-white-custom">
                                             <i className="fas fa-eye"></i> Ver Detalles
                                         </Link>
                                     </div>
@@ -65,9 +61,8 @@ function Home() {
                             </div>
                         ))}
                     </div>
-                    <div className="row">
-                        <div className="col-lg-12 text-center">
-                            <Link to="/shop" className="btn btn-custom mt-4">
+                    <div className="row">                        <div className="col-lg-12 text-center">
+                            <Link to="/shop" className="btn btn-custom mt-4 text-white-custom">
                                 <i className="fas fa-store me-2"></i>
                                 Ver Todos los Productos
                             </Link>
@@ -87,10 +82,9 @@ function Home() {
                             <div className="list-box">
                                 <div className="list-icon" style={{ color: '#051922' }}>
                                     <i className="fas fa-shipping-fast"></i>
-                                </div>
-                                <div className="content">
-                                    <h3>Envíos Express</h3>
-                                    <p>Entrega en 24-48 horas en todo Chile</p>
+                                </div>                                <div className="content">
+                                    <h3 style={{color: '#000000'}}>Envíos Express</h3>
+                                    <p style={{color: '#000000'}}>Entrega en 24-48 horas en todo Chile</p>
                                 </div>
                             </div>
                         </div>
@@ -98,10 +92,9 @@ function Home() {
                             <div className="list-box">
                                 <div className="list-icon" style={{ color: '#051922' }}>
                                     <i className="fas fa-shield-alt"></i>
-                                </div>
-                                <div className="content">
-                                    <h3>Calidad Garantizada</h3>
-                                    <p>Productos testados y certificados</p>
+                                </div>                                <div className="content">
+                                    <h3 style={{color: '#000000'}}>Calidad Garantizada</h3>
+                                    <p style={{color: '#000000'}}>Productos testados y certificados</p>
                                 </div>
                             </div>
                         </div>
@@ -109,10 +102,9 @@ function Home() {
                             <div className="list-box">
                                 <div className="list-icon" style={{ color: '#051922' }}>
                                     <i className="fas fa-headset"></i>
-                                </div>
-                                <div className="content">
-                                    <h3>Soporte Expertos</h3>
-                                    <p>Asesoría técnica especializada</p>
+                                </div>                                <div className="content">
+                                    <h3 style={{color: '#000000'}}>Soporte Expertos</h3>
+                                    <p style={{color: '#000000'}}>Asesoría técnica especializada</p>
                                 </div>
                             </div>
                         </div>
@@ -127,7 +119,7 @@ function Home() {
                         <div className="col-lg-8 offset-lg-2 text-center">
                             <div className="cta-text">
                                 <h2>¿Listo para tu próxima misión?</h2>
-                                <p style={{ color: '#737373' }}>Únete a la comunidad Alpha Squad y lleva tu equipo al siguiente nivel. Forma parte de un grupo de entusiastas. ¡Conoce, participa y potencia tu experiencia táctica!</p>
+                                <p className="text-white-custom">Únete a la comunidad Alpha Squad y lleva tu equipo al siguiente nivel. Forma parte de un grupo de entusiastas. ¡Conoce, participa y potencia tu experiencia táctica!</p>
                                 <div className="cta-btns">
                                     <Link to="/contact" className="btn btn-secondary">Regístrate</Link>
                                     <Link to="/about" className="btn btn-secondary ms-2">Nuestra Historia</Link>

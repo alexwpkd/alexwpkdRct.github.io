@@ -71,13 +71,11 @@ function Product({ agregarAlCarrito }) {
                                 />
                             </div>
                         </div>
-                        <div className="col-md-7">
-                            <div className="single-product-content">
-                                <h3>{product.name}</h3>
-                                <p className="single-product-pricing" style={{color:'#737373', fontWeight:'bold', fontSize:'1.3em'}}>
-                                    <span style={{color:'#737373', fontWeight:'bold'}}>Precio</span> {product.price}
+                        <div className="col-md-7">                            <div className="single-product-content">
+                                <h3 className="text-white-custom">{product.name}</h3>                                <p className="single-product-pricing text-white-custom" style={{fontWeight:'bold', fontSize:'1.3em'}}>
+                                    <span className="text-white-custom" style={{fontWeight:'bold'}}>Precio</span> {product.price}
                                 </p>
-                                <p style={{color:'#737373', fontWeight:'bold'}}>{product.description}</p>
+                                <p className="text-white-custom" style={{fontWeight:'bold'}}>{product.description}</p>
                                 
                                 <div className="single-product-form">
                                     <form onSubmit={(e) => { e.preventDefault(); handleAddToCart(); }}>
@@ -99,33 +97,29 @@ function Product({ agregarAlCarrito }) {
                                             {product.inStock ? 'Agregar al arsenal' : 'Agotado'}
                                         </button>
                                     </form>
-                                    {/* Categoría eliminada */}
-                                    <p>
+                                    {/* Categoría eliminada */}                                <p className="text-white-custom">
                                         <strong>Estado:</strong> 
                                         <span className={product.inStock ? 'text-success' : 'text-danger'}>
                                             {product.inStock ? ' En stock' : ' Agotado'}
                                         </span>
-                                    </p>
-                                </div>
+                                    </p>                                </div>
                                 
-                                <h4>Características</h4>
-                                <ul>
+                                <h4 className="text-white-custom">Características</h4>
+                                <ul className="text-white-custom">
                                     {product.features && product.features.map((feature, index) => (
-                                        <li key={index}>{feature}</li>
+                                        <li key={index} className="text-white-custom">{feature}</li>
                                     ))}
-                                </ul>
-
-                                {/* Información técnica adicional */}
-                                <h4 className="mt-4">Especificaciones Técnicas</h4>
+                                </ul>                                {/* Información técnica adicional */}
+                                <h4 className="mt-4 text-white-custom">Especificaciones Técnicas</h4>
                                 <div className="specifications">
                                     <div className="row">
                                         <div className="col-md-6">
-                                            <p><strong>Material:</strong> Metal y polímero reforzado</p>
-                                            <p><strong>Velocidad de salida:</strong> 400 FPS</p>
+                                            <p className="text-white-custom"><strong>Material:</strong> Metal y polímero reforzado</p>
+                                            <p className="text-white-custom"><strong>Velocidad de salida:</strong> 400 FPS</p>
                                         </div>
                                         <div className="col-md-6">
-                                            <p><strong>Modo de disparo:</strong> Semi / Auto</p>
-                                            <p><strong>Capacidad del cargador:</strong> 300 BBs</p>
+                                            <p className="text-white-custom"><strong>Modo de disparo:</strong> Semi / Auto</p>
+                                            <p className="text-white-custom"><strong>Capacidad del cargador:</strong> 300 BBs</p>
                                         </div>
                                     </div>
                                 </div>
@@ -158,13 +152,12 @@ function Product({ agregarAlCarrito }) {
                                                     <div className="out-of-stock">Agotado</div>
                                                 )}
                                             </div>
-                                            <h3 style={{color:'#fff'}}>{relatedProduct.name}</h3>
-                                            <p className="product-price" style={{color:'#fff'}}>
-                                                <span>Precio</span>{relatedProduct.price}
+                                            <h3 style={{color:'#fff'}}>{relatedProduct.name}</h3>                                            <p className="product-price text-white-custom">
+                                                <span className="text-white-custom">Precio</span>{relatedProduct.price}
                                             </p>
                                             <Link 
                                                 to={`/product/${relatedProduct.id}`}
-                                                className="cart-btn btn-custom"
+                                                className="cart-btn btn-custom text-white-custom"
                                             >
                                                 <i className="fas fa-eye"></i> Ver Detalles
                                             </Link>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Hero from './Hero.jsx';
 // import images from '../assets/images/index.js';
 
@@ -9,11 +10,10 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad }) {
   if (!carrito || carrito.length === 0) {
     return (
       <>
-        <Hero title="ARMAMENTO" />
-        <div className="container py-5 text-center">
-          <h2 style={{color:'#737373'}}>Tu carrito está vacío</h2>
-          <p style={{color:'#737373', fontWeight:'bold', display:'inline'}}>Agrega productos desde la tienda.</p>
-          <a href="/shop" className="btn btn-custom ms-3" style={{verticalAlign:'middle'}}>Ir a tienda</a>
+        <Hero title="ARMAMENTO" />        <div className="container py-5 text-center">
+          <h2 className="text-white-custom">Tu carrito está vacío</h2>
+          <p className="text-white-custom" style={{fontWeight:'bold', display:'inline'}}>Agrega productos desde la tienda.</p>
+          <Link to="/shop" className="btn btn-custom ms-3 text-white-custom" style={{verticalAlign:'middle'}}>Regresar a la tienda</Link>
         </div>
       </>
     );
@@ -43,31 +43,28 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad }) {
     <>
       <Hero title="ARSENAL" />
       <div className="container py-5">
-        <h2>Carrito de compras</h2>
-        <table className="table table-bordered mt-4">
-          <thead>
+        <h2 className="text-white-custom">Carrito de compras</h2>        <table className="table table-bordered mt-4">          <thead>
             <tr>
-              <th style={{color:'#737373'}}>Producto</th>
-              <th style={{color:'#737373'}}>Precio</th>
-              <th style={{color:'#737373'}}>Cantidad</th>
-              <th style={{color:'#737373'}}>Subtotal</th>
-              <th style={{color:'#737373'}}>Acciones</th>
+              <th className="text-white-custom">Producto</th>
+              <th className="text-white-custom">Precio</th>
+              <th className="text-white-custom">Cantidad</th>
+              <th className="text-white-custom">Subtotal</th>
+              <th className="text-white-custom">Acciones</th>
             </tr>
           </thead>
-          <tbody>
-            {carrito.map(item => (
+          <tbody>            {carrito.map(item => (
               <tr key={item.id}>
-                <td style={{color:'#737373'}}>{item.name || item.nombre}</td>
-                <td style={{color:'#737373'}}>${getPrice(item)}</td>
-                <td style={{color:'#737373'}}>
+                <td className="text-white-custom">{item.name || item.nombre}</td>
+                <td className="text-white-custom">${getPrice(item)}</td>
+                <td className="text-white-custom">
                   <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                     <button className="btn btn-secondary btn-sm" onClick={() => handleDecrement(item)}>-</button>
-                    <span style={{margin: '0 10px', minWidth: '30px', textAlign: 'center'}}>{item.cantidad}</span>
+                    <span className="text-white-custom" style={{margin: '0 10px', minWidth: '30px', textAlign: 'center'}}>{item.cantidad}</span>
                     <button className="btn btn-secondary btn-sm" onClick={() => handleIncrement(item)} disabled={item.cantidad >= getStock(item)}>+</button>
                   </div>
                 </td>
-                <td style={{color:'#737373'}}>${getPrice(item) * item.cantidad}</td>
-                <td style={{color:'#737373'}}>
+                <td className="text-white-custom">${getPrice(item) * item.cantidad}</td>
+                <td className="text-white-custom">
                   <button className="btn btn-danger btn-sm" onClick={() => eliminarDelCarrito(item.id)}>
                     Eliminar
                   </button>
@@ -75,12 +72,11 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad }) {
               </tr>
             ))}
           </tbody>
-        </table>
-        <div className="text-right">
-          <h4 style={{color:'#737373'}}>Subtotal: ${total}</h4>
-          <h5 style={{color:'#737373'}}>IVA (19%): ${iva}</h5>
-          <h4 style={{color:'#737373'}}>Total: ${totalConIva}</h4>
-          <button className="btn btn-custom mt-3" onClick={() => alert('¡Compra exitosa!')}>Confirmar compra</button>
+        </table>        <div className="text-right">
+          <h4 className="text-white-custom">Subtotal: ${total}</h4>
+          <h5 className="text-white-custom">IVA (19%): ${iva}</h5>
+          <h4 className="text-white-custom">Total: ${totalConIva}</h4>
+          <button className="btn btn-custom mt-3 text-white-custom" onClick={() => alert('¡Compra exitosa!')}>Confirmar compra</button>
         </div>
       </div>
     </>
