@@ -20,17 +20,15 @@ function Home() {
                             <div className="hero-text">
                                 <div className="hero-text-tablecell">
                                     <h1>ALPHA SQUAD</h1>
-                                    <p className="subtitle">Equipamiento táctico de elite para operaciones de precisión</p>                                    <div className="hero-btns">
+                                    <p className="subtitle">Equipamiento táctico de elite para operaciones de precisión</p>
+                                    <div className="hero-btns d-flex justify-content-center align-items-center flex-wrap gap-3">
                                         <Link to="/shop" className="btn btn-custom text-white-custom">Explorar Tienda</Link>
-                                        <Link to="/about" className="btn btn-custom ms-2 text-white-custom">Conoce Más</Link>
+                                        <Link to="/about" className="btn btn-custom text-white-custom">Conoce Más</Link>
+                                        <ScrollButton targetSelector="#main-content" playShots={false} className="scroll-button-inline" />
                                     </div>
                                 </div>
                             </div>
                         </div>
-            {/* Scroll button debajo de los botones del hero */}
-            <div className="hero-scroll-btn mt-3">
-                <ScrollButton targetSelector="#main-content" playShots={false} className="scroll-button-inline" />
-            </div>
                     </div>
                 </div>
             </div>

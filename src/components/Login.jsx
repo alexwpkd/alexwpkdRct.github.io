@@ -1,6 +1,7 @@
 // src/components/Login.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import ScrollButton from './ScrollButton.jsx';
 // Header global se renderiza en App.jsx
 
 function Login() {
@@ -100,6 +101,11 @@ function Login() {
                         </div>
                     </div>
                 </div>
+            </div>
+            
+            {/* Botón de scroll suave */}
+            <div className="text-center" style={{ marginTop: '-150px', marginBottom: '80px', position: 'relative', zIndex: 10 }}>
+                <ScrollButton targetSelector=".full-height-section" playShots={false} />
             </div>
                 
             {/* login section */}

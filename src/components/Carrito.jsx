@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Hero from './Hero.jsx';
+import ScrollButton from './ScrollButton.jsx';
 // import images from '../assets/images/index.js';
 
 function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad }) {
@@ -10,7 +11,14 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad }) {
   if (!carrito || carrito.length === 0) {
     return (
       <>
-        <Hero title="ARMAMENTO" />        <div className="container py-5 text-center">
+        <Hero title="ARMAMENTO" />
+        
+        {/* Botón de scroll suave */}
+        <div className="text-center" style={{ marginTop: '-150px', marginBottom: '80px', position: 'relative', zIndex: 10 }}>
+          <ScrollButton targetSelector=".container.py-5" playShots={false} />
+        </div>
+        
+        <div className="container py-5 text-center">
           <h2 className="text-white-custom">Tu carrito está vacío</h2>
           <p className="text-white-custom" style={{fontWeight:'bold', display:'inline'}}>Agrega productos desde la tienda.</p>
           <Link to="/shop" className="btn btn-custom ms-3 text-white-custom" style={{verticalAlign:'middle'}}>Regresar a la tienda</Link>
@@ -42,6 +50,12 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad }) {
   return (
     <>
       <Hero title="ARSENAL" />
+      
+      {/* Botón de scroll suave */}
+      <div className="text-center" style={{ marginTop: '-150px', marginBottom: '80px', position: 'relative', zIndex: 10 }}>
+        <ScrollButton targetSelector=".container.py-5" playShots={false} />
+      </div>
+      
       <div className="container py-5">
         <h2 className="text-white-custom">Carrito de compras</h2>        <table className="table table-bordered mt-4">          <thead>
             <tr>

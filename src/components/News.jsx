@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 // Header/Footer globales se controlan desde App.jsx
 import images from '../assets/images/index.js';
+import ScrollButton from './ScrollButton.jsx';
 
 function News() {
     const [currentPage, setCurrentPage] = useState(2);
@@ -96,6 +97,11 @@ function News() {
                 </div>
             </div>
             {/* end breadcrumb section */}
+            
+            {/* Botón de scroll suave */}
+            <div className="text-center" style={{ marginTop: '-80px', marginBottom: '40px', position: 'relative', zIndex: 10 }}>
+                <ScrollButton targetSelector=".latest-news" playShots={false} />
+            </div>
 
             {/* latest news */}
             <div className="latest-news mt-150 mb-150">

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import useProductData from './ProductData.jsx';
 import Hero from './Hero.jsx';
+import ScrollButton from './ScrollButton.jsx';
 import '../assets/css/shop.css';
 
 function Shop({ agregarAlCarrito }) {
@@ -57,6 +58,11 @@ function Shop({ agregarAlCarrito }) {
     return (
         <div className="Shop">
             <Hero title="Tienda Arsenal" />
+            
+            {/* Botón de scroll suave */}
+            <div className="text-center" style={{ marginTop: '-150px', marginBottom: '80px', position: 'relative', zIndex: 10 }}>
+                <ScrollButton targetSelector=".container.mt-4" playShots={false} />
+            </div>
             <div className="container mt-4">
                 <div className="row">
                     <div className="col-lg-8 mx-auto mb-3">

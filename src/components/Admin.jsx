@@ -1,6 +1,7 @@
 // src/components/Admin.jsx
 import React, { useState } from 'react';
 import { useProductData } from './ProductData';
+import ScrollButton from './ScrollButton.jsx';
 // Header/Footer globales se renderizan en App.jsx
 
 function Admin() {
@@ -102,6 +103,11 @@ function Admin() {
                         </div>
                     </div>
                 </div>
+            </div>
+            
+            {/* Botón de scroll suave */}
+            <div className="text-center" style={{ marginTop: '-150px', marginBottom: '80px', position: 'relative', zIndex: 10 }}>
+                <ScrollButton targetSelector=".container.mt-4.mb-5" playShots={false} />
             </div>
 
             {/* Navegación por pestañas */}
@@ -215,10 +221,10 @@ function Admin() {
                                         </thead>
                                         <tbody>                                            {inventory.map(product => (
                                                 <tr key={product.id}>
-                                                    <td className="text-white-custom">{product.id}</td>
-                                                    <td><strong className="text-white-custom">{product.name}</strong></td>
-                                                    <td className="text-white-custom">{product.category}</td>
-                                                    <td className="text-white-custom">${product.price.toLocaleString('es-CL')} CLP</td>
+                                                    <td style={{color: '#000'}}>{product.id}</td>
+                                                    <td><strong style={{color: '#000'}}>{product.name}</strong></td>
+                                                    <td style={{color: '#000'}}>{product.category}</td>
+                                                    <td style={{color: '#000'}}>${product.price.toLocaleString('es-CL')} CLP</td>
                                                     <td>
                                                         <span className={`badge ${getStatusBadge(product.stock === 0 ? 'Agotado' : (product.stock < 3 ? 'Stock crítico' : (product.stock < 5 ? 'Stock bajo' : 'En stock')))}`}>
                                                             {product.stock} unidades
@@ -228,8 +234,8 @@ function Admin() {
                                                         <span className={`badge ${getStatusBadge(product.stock === 0 ? 'Agotado' : (product.stock < 3 ? 'Stock crítico' : (product.stock < 5 ? 'Stock bajo' : 'En stock')))}`}>
                                                             {product.stock === 0 ? 'Agotado' : (product.stock < 3 ? 'Stock crítico' : (product.stock < 5 ? 'Stock bajo' : 'En stock'))}
                                                         </span>                                                    </td>
-                                                    <td className="text-white-custom">-</td>
-                                                    <td className="text-white-custom">{product.lastRestock ? product.lastRestock : '-'}</td>
+                                                    <td style={{color: '#000'}}>-</td>
+                                                    <td style={{color: '#000'}}>{product.lastRestock ? product.lastRestock : '-'}</td>
                                                     <td>
                                                         <div className="input-group input-group-sm" style={{width: '200px'}}>
                                                             <input 

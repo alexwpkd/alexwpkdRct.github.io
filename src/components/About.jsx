@@ -1,9 +1,15 @@
 import Hero from './Hero'
+import ScrollButton from './ScrollButton'
 
 export default function About() {
   return (
     <>
       <Hero title="¿Quiénes somos?" />
+      
+      {/* Botón de scroll suave */}
+      <div className="text-center" style={{ marginTop: '-150px', marginBottom: '80px', position: 'relative', zIndex: 10 }}>
+        <ScrollButton targetSelector=".feature-bg" playShots={false} />
+      </div>
       
       {/* featured section */}
       <div className="feature-bg">

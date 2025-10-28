@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import images from '../assets/images/index.js';
+import ScrollButton from './ScrollButton';
 
 function Contact() {
     const [formData, setFormData] = useState({
@@ -240,6 +241,11 @@ function Contact() {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        
+                        {/* Botón de scroll suave */}
+                        <div className="text-center" style={{ marginTop: '-150px', marginBottom: '80px', position: 'relative', zIndex: 10 }}>
+                            <ScrollButton targetSelector=".breadcrumb-section" playShots={false} />
                         </div>
                     </div>
                 );
