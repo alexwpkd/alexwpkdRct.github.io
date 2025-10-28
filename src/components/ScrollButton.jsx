@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 
-export default function ScrollButton({ targetSelector = null, playShots = false, duration = 600, className = '', style = {} }) {
+function ComicOverlay() {
+  return (
+    <div className="shotsOverlay" aria-hidden="true">
+      <div className="bang" style={{ "--d": "0ms" }}>BANG!</div>
+      <div className="bang" style={{ "--d": "120ms", transform: "rotate(6deg)" }}>BANG!</div>
+    </div>
+  );
+}
+
+export default function ScrollButton({ targetSelector = null, playShots = false, duration = 600, className = '', style = {}, mode = 'default' }) {
   const [cooldown, setCooldown] = useState(false);
+  const [fx, setFx] = useState(false);
 
   function triggerShots() {
     // Event-based hook for future animations
@@ -14,7 +25,14 @@ export default function ScrollButton({ targetSelector = null, playShots = false,
     // small cooldown to avoid repeated clicks
     setTimeout(() => setCooldown(false), 800);
 
-    if (playShots) triggerShots();
+    // If mode is home, show FX overlay
+    if (mode === 'home') {
+      setFx(true);
+      // hide overlay after animation
+      setTimeout(() => setFx(false), 900);
+    }
+
+    if (playShots || mode === 'home') triggerShots();
 
     if (targetSelector) {
       const el = document.querySelector(targetSelector);
@@ -85,16 +103,22 @@ export default function ScrollButton({ targetSelector = null, playShots = false,
   const combinedClass = [`btn`, `btn-custom`, 'scroll-button', className].filter(Boolean).join(' ');
 
   return (
-    <button
-      type="button"
-      className={combinedClass}
-      style={style}
-      aria-label="Sigue navegando - Desplazar hacia abajo"
-      onClick={handleClick}
-      onKeyDown={handleKey}
-    >
-      <span className="scroll-button-text">Sigue navegando</span>
-      <span className="scroll-button-arrow" aria-hidden="true"> ↓</span>
-    </button>
+    <>
+      <button
+        type="button"
+        className={combinedClass}
+        style={style}
+        aria-label="Sigue navegando - Desplazar hacia abajo"
+        onClick={handleClick}
+        onKeyDown={handleKey}
+      >
+        <span className="scroll-button-text">Sigue navegando</span>
+        <span className="scroll-button-arrow" aria-hidden="true"> ↓</span>
+      </button>
+
+    {/* Render FX only in Home mode — use a portal so the overlay is mounted on document.body
+      avoiding stacking-context issues with transformed/positioned ancestors. */}
+    {mode === 'home' && fx && typeof document !== 'undefined' && createPortal(<ComicOverlay />, document.body)}
+    </>
   );
 }

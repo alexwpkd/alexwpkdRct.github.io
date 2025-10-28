@@ -24,7 +24,7 @@ function Home() {
                                     <div className="hero-btns">
                                         <Link to="/shop" className="btn btn-custom text-white-custom">Explorar Tienda</Link>
                                         {/* ScrollButton inline entre las CTA para quedar centrado en la misma línea */}
-                                        <ScrollButton targetSelector="#main-content" playShots={false} className="scroll-button-inline mx-3" />
+                                        <ScrollButton mode="home" targetSelector="#main-content" playShots={false} className="scroll-button-inline mx-3" />
                                         <Link to="/about" className="btn btn-custom ms-2 text-white-custom">Conoce Más</Link>
                                     </div>
                                 </div>
@@ -130,7 +130,7 @@ function Home() {
                                 </div>
                                 {/* ScrollButton bajo la sección 'Únete a la comunidad' */}
                                 <div className="text-center mt-4">
-                                    <ScrollButton targetSelector="#main-content" playShots={false} className="scroll-button-inline" />
+                                    <ScrollButton mode="home" targetSelector="#main-content" playShots={false} className="scroll-button-inline" />
                                 </div>
                             </div>
                         </div>

@@ -12,6 +12,7 @@ import Admin from './components/Admin.jsx';
 import Product from './components/Product.jsx';
 import Carrito from './components/Carrito.jsx';
 import React, { useState } from 'react';
+import "./styles/shots.css";
 
 export default function App() {
   const [carrito, setCarrito] = useState([]);

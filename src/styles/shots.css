@@ -1,0 +1,44 @@
+/* Base del overlay (capa sobre toda la pantalla) */
+.shotsOverlay{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  /* Elevado para que esté por encima de headers/modales/otros estilos del tema */
+  z-index: 99999;
+  animation: screenKick 200ms ease;
+}
+@keyframes screenKick{
+  0%{transform:translateY(0)}
+  15%{transform:translateY(-6px)}
+  100%{transform:translateY(0)}
+}
+
+/* Estilo cómic “BANG!” */
+.bang{
+  position: absolute;
+  right: 10%;
+  top: 35%;
+  font: 900 64px/1 Impact, system-ui, sans-serif;
+  color: #ffd400; /* amarillo cómic */
+  text-shadow:
+    2px 2px 0 #000, -2px 2px 0 #000,
+    2px -2px 0 #000, -2px -2px 0 #000;
+  transform: scale(0) rotate(-6deg);
+  will-change: transform, opacity;
+  animation: pop 420ms cubic-bezier(.2,1.2,.2,1) var(--d,0ms) both;
+}
+@keyframes pop{
+  0%   { transform: scale(0) rotate(-6deg); opacity: 0; }
+  60%  { transform: scale(1.15) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg);  opacity: 1; }
+}
+
+/* Ancla de scroll y scroll suave (si no lo tienes ya) */
+.sectionAnchor { scroll-margin-top: 80px; } /* ajusta si tu header es sticky */
+html { scroll-behavior: smooth; }
+
+/* Accesibilidad: respetar reducción de movimiento */
+@media (prefers-reduced-motion: reduce){
+  .shotsOverlay{ animation: none; }
+  .bang{ animation: none; transform: none; }
+}
