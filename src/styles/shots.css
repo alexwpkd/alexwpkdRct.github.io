@@ -14,7 +14,6 @@
 }
 
 /* Estilo cómic “BANG!” */
-/* Grupo BANGs */
 .bangGroup{
   position: absolute;
   left: 50%;
@@ -30,7 +29,7 @@
 .bang{
   position: relative;
   font: 900 64px/1 Impact, system-ui, sans-serif;
-  color: #ffd400; /* amarillo cómic */
+  color: #ffd400; 
   text-shadow:
     2px 2px 0 #000, -2px 2px 0 #000,
     2px -2px 0 #000, -2px -2px 0 #000;
@@ -57,8 +56,8 @@
   .bang{ font-size: 40px; }
 }
 
-/* Ancla de scroll y scroll suave (si no lo tienes ya) */
-.sectionAnchor { scroll-margin-top: 80px; } /* ajusta si tu header es sticky */
+/* Ancla de scroll y scroll suave */
+.sectionAnchor { scroll-margin-top: 80px; }
 html { scroll-behavior: smooth; }
 
 /* Accesibilidad: respetar reducción de movimiento */
