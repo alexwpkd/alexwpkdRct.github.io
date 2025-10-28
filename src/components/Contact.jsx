@@ -237,16 +237,17 @@ function Contact() {
                                     <div className="hero-text">
                                         <div className="hero-text-tablecell">
                                             <h1 style={{color: 'white', textShadow: '2px 2px 8px rgba(0,0,0,0.8)'}}>Unete a nuestras filas</h1>
+                                            {/* Botón centrado debajo del título */}
+                                            <div className="text-center mt-3">
+                                                <ScrollButton targetSelector=".breadcrumb-section" playShots={false} className="scroll-button-inline" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        {/* Botón de scroll suave */}
-                        <div className="text-center" style={{ marginTop: '-150px', marginBottom: '80px', position: 'relative', zIndex: 10 }}>
-                            <ScrollButton targetSelector=".breadcrumb-section" playShots={false} />
-                        </div>
+                        {/* Botón moved inside the hero title block */}
                     </div>
                 );
             })()}

@@ -94,18 +94,17 @@ function Login() {
                     <div className="row">
                         <div className="col-lg-9 offset-lg-2 text-center">
                             <div className="hero-text">
-                                <div className="hero-text-tablecell">
+                                        <div className="hero-text-tablecell">
                                     <h1>Inicia Sesión</h1>
+                                    {/* Botón centrado directamente debajo del título */}
+                                    <div className="text-center mt-3">
+                                        <ScrollButton targetSelector=".full-height-section" playShots={false} className="scroll-button-inline" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            {/* Botón de scroll suave */}
-            <div className="text-center" style={{ marginTop: '-150px', marginBottom: '80px', position: 'relative', zIndex: 10 }}>
-                <ScrollButton targetSelector=".full-height-section" playShots={false} />
             </div>
                 
             {/* login section */}

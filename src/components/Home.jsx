@@ -21,10 +21,11 @@ function Home() {
                                 <div className="hero-text-tablecell">
                                     <h1>ALPHA SQUAD</h1>
                                     <p className="subtitle">Equipamiento táctico de elite para operaciones de precisión</p>
-                                    <div className="hero-btns d-flex justify-content-center align-items-center flex-wrap gap-3">
+                                    <div className="hero-btns">
                                         <Link to="/shop" className="btn btn-custom text-white-custom">Explorar Tienda</Link>
-                                        <Link to="/about" className="btn btn-custom text-white-custom">Conoce Más</Link>
-                                        <ScrollButton targetSelector="#main-content" playShots={false} className="scroll-button-inline" />
+                                        {/* ScrollButton inline entre las CTA para quedar centrado en la misma línea */}
+                                        <ScrollButton targetSelector="#main-content" playShots={false} className="scroll-button-inline mx-3" />
+                                        <Link to="/about" className="btn btn-custom ms-2 text-white-custom">Conoce Más</Link>
                                     </div>
                                 </div>
                             </div>
@@ -126,6 +127,10 @@ function Home() {
                                 <div className="cta-btns">
                                     <Link to="/contact" className="btn btn-secondary">Regístrate</Link>
                                     <Link to="/about" className="btn btn-secondary ms-2">Nuestra Historia</Link>
+                                </div>
+                                {/* ScrollButton bajo la sección 'Únete a la comunidad' */}
+                                <div className="text-center mt-4">
+                                    <ScrollButton targetSelector="#main-content" playShots={false} className="scroll-button-inline" />
                                 </div>
                             </div>
                         </div>

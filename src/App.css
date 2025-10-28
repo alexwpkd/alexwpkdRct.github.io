@@ -484,6 +484,15 @@ input[type="submit"],
     box-shadow: none !important;
 }
 
+/* Asegurar que dentro del hero el botón inline no quede fijado a la esquina */
+.hero-area .scroll-button-inline {
+    position: static !important;
+    right: auto !important;
+    bottom: auto !important;
+    display: inline-flex !important;
+    margin-top: 12px;
+}
+
 /* Estilos específicos para el ScrollButton */
 .scroll-button {
     position: fixed;
