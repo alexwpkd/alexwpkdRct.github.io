@@ -4,8 +4,10 @@ import { createPortal } from 'react-dom';
 function ComicOverlay() {
   return (
     <div className="shotsOverlay" aria-hidden="true">
-      <div className="bang" style={{ "--d": "0ms" }}>BANG!</div>
-      <div className="bang" style={{ "--d": "120ms", transform: "rotate(6deg)" }}>BANG!</div>
+      <div className="bangGroup">
+        <div className="bang" style={{ "--d": "0ms" }}>BANG!</div>
+        <div className="bang second" style={{ "--d": "220ms" }}>BANG!</div>
+      </div>
     </div>
   );
 }
@@ -15,20 +17,20 @@ export default function ScrollButton({ targetSelector = null, playShots = false,
   const [fx, setFx] = useState(false);
 
   function triggerShots() {
-    // Event-based hook for future animations
+    // Evento: animaciones
     window.dispatchEvent(new CustomEvent('play-shots'));
   }
 
   function handleClick() {
     if (cooldown) return;
     setCooldown(true);
-    // small cooldown to avoid repeated clicks
+  // Pequeño cooldown
     setTimeout(() => setCooldown(false), 800);
 
-    // If mode is home, show FX overlay
+    // Si es Home, mostrar FX
     if (mode === 'home') {
       setFx(true);
-      // hide overlay after animation
+      // Ocultar FX
       setTimeout(() => setFx(false), 900);
     }
 
@@ -37,18 +39,18 @@ export default function ScrollButton({ targetSelector = null, playShots = false,
     if (targetSelector) {
       const el = document.querySelector(targetSelector);
       if (el) {
-        // Calcular posición manual para mejor control
+        // Calcular posición
         const elementRect = el.getBoundingClientRect();
         const currentScrollY = window.pageYOffset;
         const targetPosition = currentScrollY + elementRect.top - 80; // 80px de margen superior para mejor posicionamiento
         
-        // Usar scroll suave personalizado en lugar de scrollIntoView
+        // Scroll suave personalizado
         smoothScrollTo(targetPosition, duration);
         return;
       }
     }
 
-    // fallback: scroll más suave y controlado
+    // Alternativa: scroll suave
     const scrollDistance = window.innerHeight * 0.6; // Reducido a 60% para menos desplazamiento
     const startPosition = window.pageYOffset;
     const targetPosition = startPosition + scrollDistance;
@@ -99,7 +101,7 @@ export default function ScrollButton({ targetSelector = null, playShots = false,
     }
   }
 
-  // Añadimos las clases 'btn btn-custom' para que el botón herede el estilo de los botones del Hero
+  // Clases del botón
   const combinedClass = [`btn`, `btn-custom`, 'scroll-button', className].filter(Boolean).join(' ');
 
   return (
@@ -116,8 +118,7 @@ export default function ScrollButton({ targetSelector = null, playShots = false,
         <span className="scroll-button-arrow" aria-hidden="true"> ↓</span>
       </button>
 
-    {/* Render FX only in Home mode — use a portal so the overlay is mounted on document.body
-      avoiding stacking-context issues with transformed/positioned ancestors. */}
+    {/* FX solo en Home; montar en body (evita stacking context) */}
     {mode === 'home' && fx && typeof document !== 'undefined' && createPortal(<ComicOverlay />, document.body)}
     </>
   );

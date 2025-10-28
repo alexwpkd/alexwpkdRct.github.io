@@ -14,10 +14,21 @@
 }
 
 /* Estilo cómic “BANG!” */
-.bang{
+/* Grupo BANGs */
+.bangGroup{
   position: absolute;
-  right: 10%;
-  top: 35%;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 120px; /* espacio horizontal entre los BANGs */
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.bang{
+  position: relative;
   font: 900 64px/1 Impact, system-ui, sans-serif;
   color: #ffd400; /* amarillo cómic */
   text-shadow:
@@ -25,12 +36,25 @@
     2px -2px 0 #000, -2px -2px 0 #000;
   transform: scale(0) rotate(-6deg);
   will-change: transform, opacity;
+  /* Dos pops, uno por elemento */
   animation: pop 420ms cubic-bezier(.2,1.2,.2,1) var(--d,0ms) both;
 }
+
 @keyframes pop{
   0%   { transform: scale(0) rotate(-6deg); opacity: 0; }
   60%  { transform: scale(1.15) rotate(2deg); opacity: 1; }
   100% { transform: scale(1) rotate(0deg);  opacity: 1; }
+}
+
+/* Variación 2do BANG */
+.bang.second{
+  /* Rotar opuesto */
+  transform: scale(0) rotate(6deg);
+}
+
+/* Responsive: reducir tamaño */
+@media (max-width: 640px){
+  .bang{ font-size: 40px; }
 }
 
 /* Ancla de scroll y scroll suave (si no lo tienes ya) */

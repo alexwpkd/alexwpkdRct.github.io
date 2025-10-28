@@ -18,7 +18,7 @@ function Contact() {
     const [rutError, setRutError] = useState('');
     const navigate = useNavigate();
 
-    // Contact info block restored
+    // Info contacto
     const contactInfo = [
         {
             icon: 'fas fa-map',
@@ -87,7 +87,7 @@ function Contact() {
         return dvCalculado === dv;
     };
 
-    // Password validation
+    // Validar contraseña
     const validatePassword = (value) => {
         const minLength = 8;
         const hasUpper = /[A-Z]/.test(value);
@@ -247,12 +247,11 @@ function Contact() {
                             </div>
                         </div>
                         
-                        {/* Botón moved inside the hero title block */}
+                        {/* Botón dentro del hero */}
                     </div>
                 );
             })()}
-
-            {/* contact form */}
+            {/* formulario contacto */}
             <div className="contact-from-section mt-100 mb-150">
                 <div className="container">
                     <div className="row">
