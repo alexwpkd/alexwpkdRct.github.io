@@ -1,4 +1,10 @@
+import React from 'react';
+import { useLocation } from 'react-router-dom';
+import ScrollButton from './ScrollButton.jsx';
+
 export default function Footer() {
+  const location = useLocation();
+  const hideOnAdmin = location && location.pathname === '/admin';
   return (
     <>
       <div>
@@ -60,6 +66,11 @@ export default function Footer() {
         </div>
         {/* end copyright */}
       </div>
+
+      {/* Show scroll button on all pages except admin */}
+      {!hideOnAdmin && (
+        <ScrollButton targetSelector="#main-content" playShots={false} />
+      )}
 
     </>
   )

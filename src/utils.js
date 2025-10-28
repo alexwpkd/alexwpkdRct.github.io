@@ -4,6 +4,10 @@
  * @returns {boolean} - true si el RUT es válido, false si no
  */
 export function validarRUT(rut) {
+  if (typeof rut !== 'string') {
+    throw new TypeError('rut debe ser un string');
+  }
+
   // Eliminar puntos y guión
   const rutLimpio = rut.replace(/\./g, '').replace('-', '');
   
@@ -42,6 +46,10 @@ export function validarRUT(rut) {
  * @returns {boolean} - true si el email es válido, false si no
  */
 export function validarEmail(email) {
+  if (typeof email !== 'string') {
+    throw new TypeError('email debe ser un string');
+  }
+
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
 }
@@ -52,6 +60,10 @@ export function validarEmail(email) {
  * @returns {boolean} - true si la contraseña es segura, false si no
  */
 export function validarPassword(password) {
+  if (typeof password !== 'string') {
+    throw new TypeError('password debe ser un string');
+  }
+
   // La contraseña debe tener al menos 6 caracteres
   if (password.length < 6) {
     return false;
@@ -72,6 +84,10 @@ export function validarPassword(password) {
  * @returns {boolean} - true si todos los datos son válidos, false si no
  */
 export function validarFormulario(datos) {
+  if (typeof datos !== 'object' || datos === null) {
+    throw new TypeError('datos debe ser un objeto con nombre, email y password');
+  }
+
   // Verificar que no hay campos vacíos
   if (!datos.nombre || !datos.email || !datos.password) {
     return false;
@@ -102,6 +118,8 @@ export function validarFormulario(datos) {
  * @returns {boolean} - true si las credenciales son correctas, false si no
  */
 export function loginUsuario(usuario, password) {
-  // Para este ejemplo, las credenciales válidas son: usuario = 'usuario', password = '1234'
+  if (typeof usuario !== 'string' || typeof password !== 'string') {
+    throw new TypeError('usuario y password deben ser strings');
+  }
   return usuario === 'usuario' && password === '1234';
 }

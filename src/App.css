@@ -448,3 +448,59 @@
         font-size: 2rem;
     }
 }
+/* Global: todos los botones fondo gris y texto blanco (petición del usuario) */
+button,
+button[type="button"],
+button[type="submit"],
+input[type="submit"],
+.boxed-btn,
+.bordered-btn,
+.filter-btn {
+    background: #6c757d !important; /* gris */
+    color: #ffffff !important; /* texto blanco */
+    border-color: #6c757d !important;
+}
+
+/* Asegura que links con clase .btn también hereden el estilo pedido */
+.btn,
+.btn-custom,
+.btn-secondary,
+.btn:hover,
+.btn-custom:hover,
+.btn-secondary:hover {
+    background: #6c757d !important;
+    color: #ffffff !important;
+    border-color: #6c757d !important;
+    text-decoration: none;
+}
+
+/* Versión inline usada dentro del Hero (no fija) */
+.scroll-button-inline {
+    position: static !important;
+    display: inline-flex !important;
+    margin-top: 12px;
+    padding: 10px 16px !important;
+    border-radius: 30px !important;
+    box-shadow: none !important;
+}
+
+/* Estilos específicos para el ScrollButton */
+.scroll-button {
+    position: fixed;
+    right: 20px;
+    bottom: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.scroll-button:active { transform: translateY(1px); }
+.scroll-button:focus { outline: 3px solid rgba(255,255,255,0.12); }
+.scroll-button-text { font-size: 0.95rem; }
+.scroll-button-arrow { font-size: 1.1rem; }

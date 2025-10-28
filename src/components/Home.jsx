@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import useProductData from './ProductData.jsx';
 import images from '../assets/images/index.js';
+import ScrollButton from './ScrollButton.jsx';
 
 function Home() {
     const { getFeaturedProducts } = useProductData();
@@ -26,6 +27,10 @@ function Home() {
                                 </div>
                             </div>
                         </div>
+            {/* Scroll button debajo de los botones del hero */}
+            <div className="hero-scroll-btn mt-3">
+                <ScrollButton targetSelector="#main-content" playShots={false} className="scroll-button-inline" />
+            </div>
                     </div>
                 </div>
             </div>
