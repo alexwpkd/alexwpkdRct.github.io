@@ -11,6 +11,9 @@ import News from './components/News.jsx';
 import Admin from './components/Admin.jsx';
 import Product from './components/Product.jsx';
 import Carrito from './components/Carrito.jsx';
+import ProductList from './components/ProductList.jsx';
+import CrearProducto from './components/CrearProducto.jsx';
+import EditarProducto from './components/EditarProducto.jsx';
 import React, { useState } from 'react';
 import "./styles/shots.css";
 
@@ -52,6 +55,10 @@ export default function App() {
         <Route path="/login" element={<Login/>} />
         <Route path="/admin" element={<Admin/>} />
   <Route path="/product/:id" element={<Product agregarAlCarrito={agregarAlCarrito} />} />
+  <Route path="/productos" element={<ProductList />} />
+  <Route path="/productos/crear" element={<CrearProducto />} />
+  <Route path="/crear" element={<CrearProducto />} />
+  <Route path="/productos/editar/:id" element={<EditarProducto />} />
         <Route path="/carrito" element={<Carrito carrito={carrito} agregarAlCarrito={agregarAlCarrito} eliminarDelCarrito={eliminarDelCarrito} actualizarCantidad={actualizarCantidad} />} />
         <Route path="/cart" element={<Carrito carrito={carrito} agregarAlCarrito={agregarAlCarrito} eliminarDelCarrito={eliminarDelCarrito} actualizarCantidad={actualizarCantidad} />} />
         <Route path="*" element={<div className="container text-center py-5"><h1>404 - Página no encontrada</h1></div>} />
