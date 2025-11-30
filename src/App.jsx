@@ -1,69 +1,94 @@
 // src/App.jsx
-import { Routes, Route } from 'react-router-dom'
-import Header from './components/Header.jsx';
-import Footer from './components/Footer.jsx';
-import Home from './components/Home.jsx';
-import About from './components/About.jsx';
-import Contact from './components/Contact.jsx';
-import Shop from './components/Shop.jsx';
-import Login from './components/Login.jsx';
-import News from './components/News.jsx';
-import Admin from './components/Admin.jsx';
-import Product from './components/Product.jsx';
-import Carrito from './components/Carrito.jsx';
-import ProductList from './components/ProductList.jsx';
-import CrearProducto from './components/CrearProducto.jsx';
-import EditarProducto from './components/EditarProducto.jsx';
-import React, { useState } from 'react';
-import "./styles/shots.css";
+import React from "react";
+import { Routes, Route, Link, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
-export default function App() {
-  const [carrito, setCarrito] = useState([]);
+import LoginPage from "./pages/LoginPage";
+import Shop from "./components/Shop";
+import CarritoPage from "./pages/CarritoPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Admin from "./components/Admin";
+import ProductList from "./components/ProductList";
+import Product from "./components/Product";
 
-  function agregarAlCarrito(producto, cantidad = 1) {
-    setCarrito(prev => {
-      const existe = prev.find(item => item.id === producto.id);
-      if (existe) {
-        const nuevaCantidad = Math.min(existe.cantidad + cantidad, producto.stock || producto.enStock || 1);
-        return prev.map(item =>
-          item.id === producto.id ? { ...item, cantidad: nuevaCantidad } : item
-        );
-      }
-      return [...prev, { ...producto, cantidad: Math.min(cantidad, producto.stock || producto.enStock || 1) }];
-    });
-  }
-
-  function eliminarDelCarrito(id) {
-    setCarrito(prev => prev.filter(item => item.id !== id));
-  }
-
-  function actualizarCantidad(id, cantidad) {
-    setCarrito(prev => prev.map(item =>
-      item.id === id ? { ...item, cantidad: Math.max(1, Math.min(cantidad, item.stock || item.enStock || 1)) } : item
-    ));
-  }
+function App() {
+  const { auth, logout } = useAuth();
 
   return (
-    <div className="app">
-      <Header />
+    <div>
+      <nav
+        style={{
+          padding: "10px",
+          borderBottom: "1px solid #ccc",
+          display: "flex",
+          gap: "10px",
+          alignItems: "center",
+        }}
+      >
+        <Link to="/shop">Tienda</Link>
+        <Link to="/carrito">Carrito</Link>
+
+        {auth?.rol === "ADMIN" && (
+          <>
+            <Link to="/admin">Panel Admin</Link>
+            <Link to="/admin/productos">Productos Admin</Link>
+          </>
+        )}
+
+        <div style={{ marginLeft: "auto" }}>
+          {auth.token ? (
+            <>
+              <span style={{ marginRight: "10px" }}>
+                Rol: {auth.rol || "Usuario"}
+              </span>
+              <button onClick={logout}>Logout</button>
+            </>
+          ) : (
+            <Link to="/login">Login</Link>
+          )}
+        </div>
+      </nav>
+
       <Routes>
-        <Route path="/" element={<Home/>} />
-        <Route path="/about" element={<About/>} />
-        <Route path="/shop" element={<Shop agregarAlCarrito={agregarAlCarrito} carrito={carrito} />} />
-        <Route path="/contact" element={<Contact/>} />
-        <Route path="/news" element={<News/>} />
-        <Route path="/login" element={<Login/>} />
-        <Route path="/admin" element={<Admin/>} />
-  <Route path="/product/:id" element={<Product agregarAlCarrito={agregarAlCarrito} />} />
-  <Route path="/productos" element={<ProductList />} />
-  <Route path="/productos/crear" element={<CrearProducto />} />
-  <Route path="/crear" element={<CrearProducto />} />
-  <Route path="/productos/editar/:id" element={<EditarProducto />} />
-        <Route path="/carrito" element={<Carrito carrito={carrito} agregarAlCarrito={agregarAlCarrito} eliminarDelCarrito={eliminarDelCarrito} actualizarCantidad={actualizarCantidad} />} />
-        <Route path="/cart" element={<Carrito carrito={carrito} agregarAlCarrito={agregarAlCarrito} eliminarDelCarrito={eliminarDelCarrito} actualizarCantidad={actualizarCantidad} />} />
-        <Route path="*" element={<div className="container text-center py-5"><h1>404 - Página no encontrada</h1></div>} />
+        <Route path="/" element={<Navigate to="/shop" replace />} />
+
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/product/:id" element={<Product />} />
+
+        <Route
+          path="/carrito"
+          element={
+            <ProtectedRoute>
+              <CarritoPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute roles={["ADMIN"]}>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/productos"
+          element={
+            <ProtectedRoute roles={["ADMIN"]}>
+              <ProductList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
-      <Footer />
     </div>
-  )
+  );
 }
+
+export default App;

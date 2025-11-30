@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ScrollButton from './ScrollButton.jsx';
+import api from '../services/api';
 // Header global se renderiza en App.jsx
 
 function Login() {
@@ -34,48 +35,62 @@ function Login() {
         }
 
         try {
-            // Simulación de API call
-            console.log('Intentando login:', formData);
-            
-            // Simular delay de red
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            // Admin: solo emails exactos y contraseña 'admin'
-            const adminEmails = [
-                'a.rios@alpha.com',
-                'd.rodri@alpha.com',
-                'a.olguin@alpha.com'
-            ];
-            if (adminEmails.includes(formData.email) && formData.password === 'admin') {
-                setLoginStatus('success-admin');
-                localStorage.setItem('authToken', 'admin-token');
-                localStorage.setItem('userEmail', formData.email);
-                localStorage.setItem('userRole', 'admin');
-                navigate('/admin');
-            } else {
-                // Buscar usuario registrado en localStorage
-                const users = JSON.parse(localStorage.getItem('users') || '[]');
-                const found = users.find(u => u.email === formData.email && u.password === formData.password);
-                if (found) {
-                    setLoginStatus('success-user');
-                    localStorage.setItem('authToken', 'user-token');
-                    localStorage.setItem('userEmail', found.email);
-                    localStorage.setItem('userRole', 'user');
-                    // Mostrar mensaje y redirigir al Home
-                    setTimeout(() => {
-                        navigate('/');
-                    }, 1200);
-                } else {
-                    setLoginStatus('Correo o contraseña incorrectos');
-                }
+            // Intentar login real con backend
+            const payload = { correo: formData.email, password: formData.password };
+
+            // Primero intentar endpoint /auth/login, si falla probar /auth/authenticate
+            let response;
+            try {
+                response = await api.post('/auth/login', payload);
+            } catch (err) {
+                // Si 404 o similar, probar otro path
+                response = await api.post('/auth/authenticate', payload);
             }
-            
+
+            const data = response && response.data ? response.data : {};
+
+            // Buscar token en distintas claves comunes
+            const token = data.token || data.jwt || data.accessToken || data.data || (typeof data === 'string' ? data : null);
+
+            if (!token) {
+                setLoginStatus('Correo o contraseña incorrectos');
+                return;
+            }
+
+            // Guardar token en la clave 'token' (axiosConfig lo usará)
+            localStorage.setItem('token', token);
+
+            // Intentar extraer correo/rol desde el payload del JWT (si viene en el token)
+            const parseJwt = (t) => {
+                try {
+                    const b = t.split('.')[1];
+                    const json = decodeURIComponent(atob(b.replace(/-/g, '+').replace(/_/g, '/')).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(json);
+                } catch (e) {
+                    return null;
+                }
+            };
+
+            const claims = parseJwt(token);
+            if (claims) {
+                if (claims.correo) localStorage.setItem('userEmail', claims.correo);
+                if (claims.rol) localStorage.setItem('userRole', claims.rol.toLowerCase());
+            }
+
+            setLoginStatus(claims && claims.rol === 'ADMIN' ? 'success-admin' : 'success-user');
+
+            // Redirigir según rol
+            setTimeout(() => {
+                if (claims && claims.rol === 'ADMIN') navigate('/admin');
+                else navigate('/');
+            }, 800);
+
             // Resetear formulario
-            setFormData({
-                email: '',
-                password: ''
-            });
-            
-        } catch {
+            setFormData({ email: '', password: '' });
+
+        } catch (err) {
             setLoginStatus('Error al iniciar sesión. Intenta nuevamente.');
         } finally {
             setLoading(false);

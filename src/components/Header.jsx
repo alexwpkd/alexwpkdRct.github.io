@@ -1,14 +1,26 @@
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import images from '../assets/images/index.js'
 
 export default function Header() {
   const [open, setOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate();
+
+  const userEmail = localStorage.getItem('userEmail') || null;
+  const userRole = (localStorage.getItem('userRole') || '').toLowerCase();
 
   const toggleMenu = () => setOpen(!open)
   const closeMenu = () => setOpen(false)
   const isActive = (path) => location.pathname === path ? 'current-list-item' : ''
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('authToken');
+    navigate('/login');
+  }
 
   return (
   <>
@@ -44,12 +56,34 @@ export default function Header() {
                   <li className={isActive('/about')}>
                     <NavLink to="/about" onClick={closeMenu}>¿Quienes somos?</NavLink>
                   </li>
-                  <li className={isActive('/login')}>
-                    <NavLink to="/login" onClick={closeMenu}>Inicio sesión</NavLink>
-                  </li>
-                  <li className={isActive('/contact')}>
-                    <NavLink to="/contact" onClick={closeMenu}>Regístrate</NavLink>
-                  </li>
+                  {userEmail ? (
+                    <>
+                      <li>
+                        <span className="nav-user">{userEmail}</span>
+                      </li>
+                      <li>
+                        <button className="btn btn-link nav-logout" onClick={() => { closeMenu(); handleLogout(); }}>Cerrar sesión</button>
+                      </li>
+                    </>
+                  ) : (
+                    <>
+                      <li className={isActive('/login')}>
+                        <NavLink to="/login" onClick={closeMenu}>Inicio sesión</NavLink>
+                      </li>
+                      <li className={isActive('/contact')}>
+                        <NavLink to="/contact" onClick={closeMenu}>Regístrate</NavLink>
+                      </li>
+                    </>
+                  )}
+
+                  {/* Links visibles solo para admin/empleado */}
+                  {(userRole === 'admin' || userRole === 'empleado') && (
+                    <>
+                      <li className={isActive('/productos')}>
+                        <NavLink to="/productos" onClick={closeMenu}>Productos</NavLink>
+                      </li>
+                    </>
+                  )}
                   <li className={isActive('/shop')}>
                     <NavLink to="/shop" onClick={closeMenu}>Tienda</NavLink>
                   </li>
