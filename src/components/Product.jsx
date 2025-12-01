@@ -1,16 +1,50 @@
 // src/components/Product.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import images from '../assets/images/index.js';
 import useProductData from './ProductData.jsx';
+import { resolveImage } from '../utils.js';
 import Hero from './Hero.jsx';
+import api from '../utils.js';
 
 function Product({ agregarAlCarrito }) {
     const { id } = useParams();
-    const { getProductById, getProductsByCategory } = useProductData();
+    const { getProductById, getProductsByCategory, img } = useProductData();
     const [quantity, setQuantity] = useState(1);
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-    const product = getProductById(id);
+    // Intentar cargar producto desde backend, fallback a ProductData
+    useEffect(() => {
+        let mounted = true;
+        const loadProduct = async () => {
+            setLoading(true);
+            try {
+                const resp = await api.get(`/api/productos/${id}`);
+                const p = resp.data;
+                const mapped = {
+                    id: p.idProducto ?? p.id,
+                    name: p.nombre ?? p.name,
+                    description: p.descripcion ?? p.description ?? '',
+                    price: (p.precio ?? p.price) ? new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(p.precio ?? p.price) : '$0 CLP',
+                    priceNumber: p.precio ?? p.price ?? 0,
+                    imageKey: p.imagenClave ?? null,
+                    imageUrl: p.imagenUrl ?? p.imagen ?? null,
+                    inStock: (p.stock ?? 0) > 0,
+                    stock: p.stock ?? 0,
+                    features: p.features ?? []
+                };
+                if (mounted) setProduct(mapped);
+            } catch (err) {
+                console.warn('No se pudo cargar producto desde backend, usando ProductData local', err);
+                const fallback = getProductById(id);
+                if (mounted) setProduct(fallback);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+        loadProduct();
+        return () => { mounted = false; };
+    }, [id]);
     
     // Si no encuentra el producto
     if (!product) {
@@ -64,9 +98,9 @@ function Product({ agregarAlCarrito }) {
                 <div className="container">
                     <div className="row">
                         <div className="col-md-5">
-                            <div className="single-product-img">
+                                <div className="single-product-img">
                                 <img 
-                                    src={images[product.imageKey]} 
+                                    src={product.imageUrl ? product.imageUrl : resolveImage(product.imageKey)}
                                     alt={product.name}
                                 />
                             </div>
@@ -144,7 +178,7 @@ function Product({ agregarAlCarrito }) {
                                             <div className="product-image">
                                                 <Link to={`/product/${relatedProduct.id}`}>
                                                     <img 
-                                                        src={images[relatedProduct.imageKey]} 
+                                                        src={relatedProduct.imageUrl ? relatedProduct.imageUrl : resolveImage(relatedProduct.imageKey)} 
                                                         alt={relatedProduct.name}
                                                     />
                                                 </Link>

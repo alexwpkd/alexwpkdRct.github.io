@@ -4,12 +4,13 @@
 // Usa tu cargador de imágenes: src/assets/images/index.js
 
 import images from "../assets/images";
+import { resolveImage } from '../utils.js';
 
 // ====== Datos base ======
 const CATEGORIAS = ["arma_primaria", "arma_secundaria", "municion", "accesorios"];
 
-// helper imagen (tu loader mapea "products/product-img-X" -> URL)
-const img = (clave) => images[clave] ?? "";
+// helper imagen (intenta resolver varios formatos usando resolveImage)
+const img = (clave) => resolveImage(clave) || images[clave] || "";
 
 // formateo CLP
 const CLP = (n) =>

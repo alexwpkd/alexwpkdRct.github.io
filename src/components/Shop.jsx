@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useProductData from './ProductData.jsx';
 import Hero from './Hero.jsx';
 import ScrollButton from './ScrollButton.jsx';
 import '../assets/css/shop.css';
+import api, { getAuthHeaders } from '../utils.js';
 
 function Shop({ agregarAlCarrito }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Usar el hook personalizado de datos (ESPAÑOL)
-    const { productos, CATEGORIAS, porCategoria, img, CLP } = useProductData();
+    // Usar el hook personalizado de datos (ESPAÑOL) como fallback
+    const { productos: productosLocal, CATEGORIAS, porCategoria, img, CLP } = useProductData();
+
+    const [productos, setProductos] = useState(productosLocal);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     // Mapeo de categorías para UI
     const categories = [
@@ -20,10 +25,10 @@ function Shop({ agregarAlCarrito }) {
     ];
 
     // Filtrar productos por categoría Y búsqueda
-    const filteredProducts = (selectedCategory === 'all' ? productos : porCategoria(selectedCategory)).filter(producto => 
-        producto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        producto.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        producto.categoria.replace(/_/g, ' ').toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredProducts = (selectedCategory === 'all' ? productos : productos.filter(p => p.categoria === selectedCategory)).filter(producto => 
+        (producto.nombre || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (producto.descripcion || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ((producto.categoria || '').toString().replace(/_/g, ' ')).toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     // Paginación
@@ -54,6 +59,40 @@ function Shop({ agregarAlCarrito }) {
     };
 
     const pages = [...Array(totalPages)].map((_, index) => index + 1);
+
+    useEffect(() => {
+        let mounted = true;
+        const loadProducts = async () => {
+            setLoading(true);
+            try {
+                const resp = await api.get('/api/productos');
+                const list = resp.data || [];
+                // Mapear a la estructura que usa la UI
+                const mapped = list.map(p => ({
+                    id: p.idProducto ?? p.id,
+                    nombre: p.nombre ?? p.name,
+                    descripcion: p.descripcion ?? p.description ?? '',
+                    precio: p.precio ?? p.price ?? 0,
+                    enStock: (p.stock ?? p.stockDisponible ?? 0) > 0,
+                    stock: p.stock ?? p.stockDisponible ?? 0,
+                    categoria: p.categoria ?? p.category ?? 'all',
+                    imagenClave: p.imagenClave ?? p.imagenClave ?? null,
+                    imageUrl: p.imagenUrl ?? p.imagen ?? null
+                }));
+                if (mounted) setProductos(mapped.length ? mapped : productosLocal);
+            } catch (err) {
+                console.warn('No se pudo cargar productos desde backend, usando catálogo local', err);
+                if (mounted) {
+                    setProductos(productosLocal);
+                    setError(err);
+                }
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+        loadProducts();
+        return () => { mounted = false; };
+    }, []);
 
     return (
         <div className="Shop">
@@ -123,34 +162,38 @@ function Shop({ agregarAlCarrito }) {
                                         <div className="product-image">
                                             <Link to={`/product/${producto.id}`}>
                                                 <img 
-                                                    src={img(producto.imagenClave)} 
+                                                    src={producto.imageUrl ? producto.imageUrl : img(producto.imagenClave)} 
                                                     alt={producto.nombre}
                                                 />
                                             </Link>
                                             {!producto.enStock && (
                                                 <div className="out-of-stock">Agotado</div>
                                             )}
-                                        </div>                                        <div className="product-content">
-                                            <h3 className="text-white-custom">{producto.nombre}</h3>                                            <p className="product-description text-white-custom">{producto.descripcion}</p><p className="product-price text-white-custom">
-                                                <span className="text-white-custom">Precio</span> {CLP(producto.precio)}                                            </p>
-                                                                                        <button 
-                                                                                                className={`cart-btn btn-custom text-white-custom ${!producto.enStock ? 'disabled' : ''}`}
-                                                                                                onClick={() => {
-                                                                                                    if (producto.enStock) {
-                                                                                                        agregarAlCarrito({
-                                                                                                            id: producto.id,
-                                                                                                            nombre: producto.nombre,
-                                                                                                            precio: producto.precio,
-                                                                                                            stock: producto.stock || producto.enStock || 1
-                                                                                                        }, 1);
-                                                                                                        alert(`${producto.nombre} agregado al carrito`);
-                                                                                                    }
-                                                                                                }}
-                                                                                                disabled={!producto.enStock}
-                                                                                        >
-                                                                                                <i className="fas fa-shopping-cart"></i> 
-                                                                                                {producto.enStock ? 'Agregar' : 'Agotado'}
-                                                                                        </button>
+                                        </div>
+                                        <div className="product-content">
+                                            <h3 className="text-white-custom">{producto.nombre}</h3>
+                                            <p className="product-description text-white-custom">{producto.descripcion}</p>
+                                            <p className="product-price text-white-custom">
+                                                <span className="text-white-custom">Precio</span> {CLP(producto.precio)}
+                                            </p>
+                                            <button 
+                                                className={`cart-btn btn-custom text-white-custom ${!producto.enStock ? 'disabled' : ''}`}
+                                                onClick={() => {
+                                                    if (producto.enStock) {
+                                                        agregarAlCarrito({
+                                                            id: producto.id,
+                                                            nombre: producto.nombre,
+                                                            precio: producto.precio,
+                                                            stock: producto.stock || producto.enStock || 1
+                                                        }, 1);
+                                                        alert(`${producto.nombre} agregado al carrito`);
+                                                    }
+                                                }}
+                                                disabled={!producto.enStock}
+                                            >
+                                                <i className="fas fa-shopping-cart"></i> 
+                                                {producto.enStock ? 'Agregar' : 'Agotado'}
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

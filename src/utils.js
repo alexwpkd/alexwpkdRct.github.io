@@ -1,3 +1,65 @@
+import axios from 'axios';
+import images from './assets/images/index.js';
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
+
+const api = axios.create({
+  baseURL: API_BASE,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+export function getAuthHeaders() {
+  const token = localStorage.getItem('authToken');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export default api;
+
+/**
+ * Resolver claves de imagen que pueden venir del backend.
+ * Soporta:
+ * - URLs absolutas (http(s)://...)
+ * - claves que coinciden con las claves del mapa generado por `src/assets/images/index.js`
+ * - claves sin prefijo de carpeta (intentará añadir `products/`)
+ * - claves con o sin extensión (.jpg, .png, ...)
+ */
+export function resolveImage(clave) {
+  if (!clave) return '';
+  if (typeof clave !== 'string') return '';
+
+  // Si es una URL absoluta, devolver tal cual
+  if (/^https?:\/\//i.test(clave)) return clave;
+
+  const tryKeys = new Set();
+
+  const raw = clave.trim();
+  tryKeys.add(raw);
+
+  // quitar ./ o prefijo / si existe
+  tryKeys.add(raw.replace(/^\.\//, '').replace(/^\//, ''));
+
+  // sin extensión
+  tryKeys.add(raw.replace(/\.[^/.]+$/, ''));
+
+  // con carpeta products/ si no la tiene
+  if (!/\//.test(raw)) {
+    tryKeys.add(`products/${raw}`);
+    tryKeys.add(`products/${raw.replace(/\.[^/.]+$/, '')}`);
+  } else if (!raw.startsWith('products/')) {
+    // si tiene subcarpeta diferente, también intentar con products/
+    const nameNoExt = raw.replace(/\.[^/.]+$/, '');
+    tryKeys.add(`products/${nameNoExt}`);
+  }
+
+  // probar cada key contra el mapa images
+  for (const k of tryKeys) {
+    if (k && images[k]) return images[k];
+  }
+
+  return '';
+}
 /**
  * Valida un RUT chileno
  * @param {string} rut - RUT a validar (formato: XX.XXX.XXX-X)

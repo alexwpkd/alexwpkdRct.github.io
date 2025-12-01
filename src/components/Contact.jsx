@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import images from '../assets/images/index.js';
 import ScrollButton from './ScrollButton';
+import axios from 'axios';
 
 function Contact() {
     const [formData, setFormData] = useState({
@@ -17,6 +18,19 @@ function Contact() {
     const [passwordError, setPasswordError] = useState('');
     const [rutError, setRutError] = useState('');
     const navigate = useNavigate();
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [loggedEmail, setLoggedEmail] = useState('');
+    const [regiones, setRegiones] = useState([]);
+    const [comunas, setComunas] = useState([]);
+
+    useEffect(() => {
+        const token = localStorage.getItem('authToken');
+        const email = localStorage.getItem('userEmail');
+        if (token) {
+            setLoggedIn(true);
+            setLoggedEmail(email || '');
+        }
+    }, []);
 
     // Info contacto
     const contactInfo = [
@@ -57,7 +71,26 @@ function Contact() {
         'Magallanes': ['Punta Arenas', 'Laguna Blanca', 'Río Verde', 'San Gregorio', 'Cabo de Hornos', 'Antártica', 'Porvenir', 'Primavera', 'Timaukel', 'Natales', 'Torres del Paine'],
     }), []);
 
-    const comunaOptions = useMemo(() => regionesComunas[formData.region] || [], [regionesComunas, formData.region]);
+    // Comunas/Regiones desde backend si están disponibles
+    useEffect(() => {
+        const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
+        // fetch regiones
+        axios.get(`${API_BASE}/api/regiones`).then(r => setRegiones(r.data)).catch(() => {});
+        // fetch comunas
+        axios.get(`${API_BASE}/api/comunas`).then(r => setComunas(r.data)).catch(() => {});
+    }, []);
+
+    const comunaOptions = useMemo(() => {
+        // Si tenemos comunas desde backend y región seleccionada (por id), filtramos por region
+        if (comunas && comunas.length > 0 && formData.region) {
+            const regionId = parseInt(formData.region, 10);
+            return comunas
+                .filter(c => c.region && (c.region.idRegion === regionId || c.region.idRegion === undefined && c.region.id === regionId))
+                .map(c => ({ id: c.idComuna ?? c.id, nombre: c.nombre }));
+        }
+        // Fallback a la estructura estática (por nombre de región)
+        return (regionesComunas[formData.region] || []).map(nombre => ({ id: null, nombre }));
+    }, [comunas, formData.region, regionesComunas]);
 
     // Función para validar RUT chileno
     const validarRUT = (rut) => {
@@ -89,10 +122,10 @@ function Contact() {
 
     // Validar contraseña
     const validatePassword = (value) => {
+        // Match backend `ValidacionPassword`: min 8, must have 1 uppercase and 1 number
         const minLength = 8;
         const hasUpper = /[A-Z]/.test(value);
         const hasNumber = /[0-9]/.test(value);
-        const hasSpecial = /[^A-Za-z0-9]/.test(value);
         if (value.length < minLength) {
             return 'Mínimo 8 caracteres';
         }
@@ -101,9 +134,6 @@ function Contact() {
         }
         if (!hasNumber) {
             return 'Debe tener al menos 1 número';
-        }
-        if (!hasSpecial) {
-            return 'Debe tener al menos 1 caracter especial';
         }
         return '';
     };
@@ -144,7 +174,7 @@ function Contact() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         // Validar RUT
@@ -170,58 +200,128 @@ function Contact() {
             return;
         }
 
-        // Guardar usuario en localStorage para futuros inicios de sesión
+        // Intentar crear el cliente en el backend
         try {
-            const regularUsers = JSON.parse(localStorage.getItem('regular_users') || '[]');
-            
-            // Verificar si el usuario ya existe
-            if (regularUsers.some(user => user.email === formData.email)) {
-                alert('❌ Este correo ya está registrado. Puedes iniciar sesión.');
-                return;
+            const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
+
+            // Construir payload de comuna: si formData.comuna es un id, enviamos { idComuna },
+            // de lo contrario enviamos { nombre } como fallback.
+            let comunaPayload = { nombre: formData.comuna };
+            if (formData.comuna && !isNaN(parseInt(formData.comuna, 10))) {
+                comunaPayload = { idComuna: parseInt(formData.comuna, 10) };
             }
 
-            const newUser = {
-                id: Date.now(),
-                name: `${formData.name} ${formData.lastname}`,
-                email: formData.email,
+            const payload = {
+                nombre: formData.name,
+                apellidos: formData.lastname,
+                rut: formData.phone,
+                correo: formData.email,
                 password: formData.password,
-                phone: formData.phone,
-                region: formData.region,
-                comuna: formData.comuna,
-                address: formData.address,
-                status: 'Activo',
-                registerDate: new Date().toISOString().split('T')[0],
-                role: 'user'
+                direccion: formData.address,
+                comuna: comunaPayload
             };
 
-            const updatedUsers = [...regularUsers, newUser];
-            localStorage.setItem('regular_users', JSON.stringify(updatedUsers));
-            
-            alert('✅ Registro exitoso. Ya puedes iniciar sesión.');
-
-            // Limpiar formulario
-            setFormData({
-                name: '',
-                lastname: '',
-                phone: '',
-                email: '',
-                region: '',
-                comuna: '',
-                address: '',
-                password: ''
+            const resp = await axios.post(`${API_BASE}/api/clientes`, payload, {
+                headers: { 'Content-Type': 'application/json' }
             });
-            setPasswordError('');
-            setRutError('');
 
-            // Redirigir al login después de 2 segundos
-            setTimeout(() => {
-                navigate('/login');
-            }, 2000);
+            if (resp.status === 200 || resp.status === 201) {
+                // Registro creado correctamente. Intentar login automático contra /auth/login
+                try {
+                    const loginResp = await axios.post(`${API_BASE}/auth/login`, {
+                        correo: formData.email,
+                        password: formData.password
+                    }, { headers: { 'Content-Type': 'application/json' } });
+
+                    const data = loginResp.data;
+                    // Guardar token y datos
+                    localStorage.setItem('authToken', data.token || '');
+                    if (data.rol) localStorage.setItem('userRole', data.rol.toLowerCase());
+                    if (data.correo) localStorage.setItem('userEmail', data.correo);
+                    if (data.idCliente) localStorage.setItem('idCliente', String(data.idCliente));
+
+                    setLoggedIn(true);
+                    setLoggedEmail(data.correo || formData.email);
+
+                    alert('✅ Registro exitoso y sesión iniciada.');
+
+                    // Limpiar formulario
+                    setFormData({
+                        name: '',
+                        lastname: '',
+                        phone: '',
+                        email: '',
+                        region: '',
+                        comuna: '',
+                        address: '',
+                        password: ''
+                    });
+                    setPasswordError('');
+                    setRutError('');
+
+                } catch (loginErr) {
+                    console.warn('Registro OK pero no se pudo logear automáticamente', loginErr);
+                    alert('Registro creado. Por favor inicia sesión.');
+                    setTimeout(() => navigate('/login'), 1200);
+                }
+            } else {
+                alert('No se pudo crear el usuario. Intenta nuevamente.');
+            }
 
         } catch (err) {
-            console.error('Error guardando usuario:', err);
-            alert('Hubo un problema guardando tu registro. Intenta nuevamente.');
+            console.error('Error guardando usuario en backend:', err);
+            // Fallback: mantener el comportamiento local previo
+            try {
+                const regularUsers = JSON.parse(localStorage.getItem('regular_users') || '[]');
+                if (regularUsers.some(user => user.email === formData.email)) {
+                    alert('❌ Este correo ya está registrado. Puedes iniciar sesión.');
+                    return;
+                }
+                const newUser = {
+                    id: Date.now(),
+                    name: `${formData.name} ${formData.lastname}`,
+                    email: formData.email,
+                    password: formData.password,
+                    phone: formData.phone,
+                    region: formData.region,
+                    comuna: formData.comuna,
+                    address: formData.address,
+                    status: 'Activo',
+                    registerDate: new Date().toISOString().split('T')[0],
+                    role: 'user'
+                };
+                const updatedUsers = [...regularUsers, newUser];
+                localStorage.setItem('regular_users', JSON.stringify(updatedUsers));
+                alert('✅ Registro guardado localmente. Ya puedes iniciar sesión.');
+                setFormData({
+                    name: '',
+                    lastname: '',
+                    phone: '',
+                    email: '',
+                    region: '',
+                    comuna: '',
+                    address: '',
+                    password: ''
+                });
+                setPasswordError('');
+                setRutError('');
+                setTimeout(() => navigate('/login'), 1200);
+            } catch (localErr) {
+                console.error('Fallback local falló:', localErr);
+                alert('Hubo un problema guardando tu registro. Intenta nuevamente.');
+            }
         }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('idCliente');
+        setLoggedIn(false);
+        setLoggedEmail('');
+        // opcional: redirigir a home
+        navigate('/');
     };
 
     return (
@@ -336,10 +436,17 @@ function Contact() {
                                             required
                                         >
                                             <option value="">Selecciona región</option>
-                                            {Object.keys(regionesComunas).map(r => (
-                                                <option key={r} value={r}>{r}</option>
-                                            ))}
+                                            {regiones && regiones.length > 0 ? (
+                                                regiones.map(r => (
+                                                    <option key={r.idRegion ?? r.id} value={r.idRegion ?? r.id}>{r.nombre}</option>
+                                                ))
+                                            ) : (
+                                                Object.keys(regionesComunas).map(r => (
+                                                    <option key={r} value={r}>{r}</option>
+                                                ))
+                                            )}
                                         </select>
+
                                         <select 
                                             name="comuna" 
                                             id="comuna" 
@@ -351,7 +458,7 @@ function Contact() {
                                         >
                                             <option value="">Selecciona comuna</option>
                                             {comunaOptions.map(c => (
-                                                <option key={c} value={c}>{c}</option>
+                                                <option key={c.id ?? c.nombre} value={c.id ?? c.nombre}>{c.nombre}</option>
                                             ))}
                                         </select>
                                     </div>
@@ -379,8 +486,9 @@ function Contact() {
                                             required 
                                         />
                                     </div>
-                                    <div className="contact-requirements-container">                                        <small className={`contact-password-requirements text-white-custom ${passwordError ? 'error' : ''}`}>
-                                            Requisitos: Mínimo 8 caracteres, 1 mayúscula, 1 número, 1 caracter especial
+                                    <div className="contact-requirements-container">
+                                        <small className={`contact-password-requirements text-white-custom ${passwordError ? 'error' : ''}`}>
+                                            Requisitos: Mínimo 8 caracteres, 1 mayúscula, 1 número
                                         </small>
                                         {passwordError && <small className="contact-password-error">{passwordError}</small>}
                                     </div>

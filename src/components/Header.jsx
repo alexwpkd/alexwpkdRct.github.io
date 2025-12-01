@@ -1,5 +1,5 @@
-import { Link, NavLink, useLocation } from 'react-router-dom'
-import { useState } from 'react'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import images from '../assets/images/index.js'
 
 export default function Header() {
@@ -9,6 +9,29 @@ export default function Header() {
   const toggleMenu = () => setOpen(!open)
   const closeMenu = () => setOpen(false)
   const isActive = (path) => location.pathname === path ? 'current-list-item' : ''
+
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken')
+    const email = localStorage.getItem('userEmail')
+    if (token) {
+      setLoggedIn(true)
+      setUserEmail(email || '')
+    }
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken')
+    localStorage.removeItem('userRole')
+    localStorage.removeItem('userEmail')
+    localStorage.removeItem('idCliente')
+    setLoggedIn(false)
+    setUserEmail('')
+    navigate('/')
+  }
 
   return (
   <>
@@ -58,6 +81,16 @@ export default function Header() {
                       <NavLink className="shopping-cart" to="/cart" onClick={closeMenu}>
                         <i className="fas fa-shopping-cart"></i>
                       </NavLink>
+                      {loggedIn && (
+                        <span style={{marginLeft:12, display:'inline-flex', alignItems:'center', gap:8}}>
+                          <button className="btn btn-sm btn-light" style={{display:'inline-flex', alignItems:'center', gap:8}} onClick={() => {}} title="Mi cuenta">
+                            <i className="fas fa-user-circle"></i>
+                          </button>
+                          <button className="btn btn-sm btn-danger" onClick={handleLogout} title="Cerrar sesión">
+                            <i className="fas fa-sign-out-alt"></i>
+                          </button>
+                        </span>
+                      )}
                     </div>
                   </li>
                 </ul>
