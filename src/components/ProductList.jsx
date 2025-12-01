@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../api/api";
+import axios from "../utils/axiosConfig";
 import { useNavigate, Link } from "react-router-dom";
 
 const ProductList = () => {
@@ -10,7 +10,7 @@ const ProductList = () => {
   const fetchProductos = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/api/productos");
+      const res = await axios.get("http://localhost:8080/api/productos");
       setProductos(res.data);
     } catch (err) {
       console.error("Error fetching productos:", err);
@@ -26,7 +26,8 @@ const ProductList = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("¿Eliminar producto?")) return;
     try {
-      await api.delete(`/api/productos/${id}`);
+      const token = localStorage.getItem("token");
+      await axios.delete(`/api/productos/${id}`);
       // refrescar lista
       setProductos((prev) => prev.filter((p) => p.idProducto !== id && p.id !== id));
     } catch (err) {
@@ -42,7 +43,7 @@ const ProductList = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Lista de Productos</h2>
         <div>
-          <Link to="/admin/productos/crear" className="btn btn-primary">Crear Producto</Link>
+          <Link to="/productos/crear" className="btn btn-primary">Crear Producto</Link>
         </div>
       </div>
 
@@ -67,7 +68,7 @@ const ProductList = () => {
                 <td>{p.precio ?? p.price ?? "-"}</td>
                 <td>{p.stock ?? (p.inStock ? "Sí" : "No")}</td>
                 <td>
-                  <button className="btn btn-sm btn-secondary me-2" onClick={() => navigate(`/admin/productos/editar/${p.idProducto ?? p.id}`)}>Editar</button>
+                  <button className="btn btn-sm btn-secondary me-2" onClick={() => navigate(`/productos/editar/${p.idProducto ?? p.id}`)}>Editar</button>
                   <button className="btn btn-sm btn-danger" onClick={() => handleDelete(p.idProducto ?? p.id)}>Eliminar</button>
                 </td>
               </tr>

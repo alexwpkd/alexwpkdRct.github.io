@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import images from '../assets/images/index.js';
-import api from '../api/api';
+import api from '../services/api';
 import Hero from './Hero.jsx';
 
 function Product({ agregarAlCarrito }) {
