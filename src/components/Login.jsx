@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ScrollButton from './ScrollButton.jsx';
+import axios from 'axios';
 // Header global se renderiza en App.jsx
 
 function Login() {
@@ -34,46 +35,87 @@ function Login() {
         }
 
         try {
-            // Simulación de API call
-            console.log('Intentando login:', formData);
-            
-            // Simular delay de red
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            // Admin: solo emails exactos y contraseña 'admin'
-            const adminEmails = [
-                'a.rios@alpha.com',
-                'd.rodri@alpha.com',
-                'a.olguin@alpha.com'
-            ];
-            if (adminEmails.includes(formData.email) && formData.password === 'admin') {
-                setLoginStatus('success-admin');
-                localStorage.setItem('authToken', 'admin-token');
-                localStorage.setItem('userEmail', formData.email);
-                localStorage.setItem('userRole', 'admin');
-                navigate('/admin');
-            } else {
-                // Buscar usuario registrado en localStorage
-                const users = JSON.parse(localStorage.getItem('users') || '[]');
-                const found = users.find(u => u.email === formData.email && u.password === formData.password);
-                if (found) {
-                    setLoginStatus('success-user');
-                    localStorage.setItem('authToken', 'user-token');
-                    localStorage.setItem('userEmail', found.email);
-                    localStorage.setItem('userRole', 'user');
-                    // Mostrar mensaje y redirigir al Home
-                    setTimeout(() => {
-                        navigate('/');
-                    }, 1200);
+            // Intentar autenticación contra el backend
+            console.log('Intentando login (backend):', formData);
+
+            const payload = { correo: formData.email, password: formData.password };
+
+            let backendOk = false;
+
+            try {
+                const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
+
+                const resp = await axios.post(`${API_BASE}/auth/login`, payload, {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = resp.data;
+
+                // Guardar token y datos relevantes
+                localStorage.setItem('authToken', data.token || '');
+                if (data.rol) localStorage.setItem('userRole', data.rol.toLowerCase());
+                if (data.correo) localStorage.setItem('userEmail', data.correo);
+                if (data.idCliente) localStorage.setItem('idCliente', String(data.idCliente));
+
+                // Mostrar estado y redirigir según rol (mantener comportamiento previo)
+                if (data.rol && data.rol.toUpperCase() === 'ADMIN') {
+                    setLoginStatus('success-admin');
+                    navigate('/admin');
+                } else if (data.rol && data.rol.toUpperCase() === 'EMPLEADO') {
+                    setLoginStatus('success-admin');
+                    navigate('/admin');
                 } else {
-                    setLoginStatus('Correo o contraseña incorrectos');
+                    setLoginStatus('success-user');
+                    setTimeout(() => navigate('/'), 1200);
+                }
+
+                backendOk = true;
+            } catch (err) {
+                if (err.response) {
+                    if (err.response.status === 401) {
+                        // Credenciales incorrectas en backend: fallback local
+                        console.warn('Backend: credenciales incorrectas, aplicando fallback local');
+                    } else {
+                        console.error('Backend error:', err.response.status, err.response.data);
+                        setLoginStatus('Error del servidor. Intenta nuevamente.');
+                    }
+                } else {
+                    console.warn('No se pudo conectar al backend, usando fallback local', err);
                 }
             }
-            
+
+            // Si el backend no autenticó (o no disponible), mantener la lógica local existente
+            if (!backendOk) {
+                // Fallback local: considerar usuarios de la organización (admin/empleado)
+                // que tienen correos con el dominio '@alpha.cl'. Si la contraseña es
+                // 'admin' concedemos acceso administrativo localmente.
+                if (formData.email.toLowerCase().endsWith('@alpha.cl') && formData.password === 'admin') {
+                    setLoginStatus('success-admin');
+                    localStorage.setItem('authToken', 'admin-token');
+                    localStorage.setItem('userEmail', formData.email);
+                    localStorage.setItem('userRole', 'admin');
+                    navigate('/admin');
+                } else {
+                    // Buscar usuario registrado en localStorage
+                    const users = JSON.parse(localStorage.getItem('users') || '[]');
+                    const found = users.find(u => u.email === formData.email && u.password === formData.password);
+                    if (found) {
+                        setLoginStatus('success-user');
+                        localStorage.setItem('authToken', 'user-token');
+                        localStorage.setItem('userEmail', found.email);
+                        localStorage.setItem('userRole', 'user');
+                        // Mostrar mensaje y redirigir al Home
+                        setTimeout(() => {
+                            navigate('/');
+                        }, 1200);
+                    } else {
+                        setLoginStatus('Correo o contraseña incorrectos');
+                    }
+                }
+            }
+
             // Resetear formulario
-            setFormData({
-                email: '',
-                password: ''
-            });
+            setFormData({ email: '', password: '' });
             
         } catch {
             setLoginStatus('Error al iniciar sesión. Intenta nuevamente.');
