@@ -1,21 +1,42 @@
 import axios from 'axios';
 import images from './assets/images/index.js';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
+// 👇 AHORA tu app apunta por defecto a la IP de la instancia EC2
+// Si quieres sobreescribirlo en el futuro, crea un .env con VITE_API_BASE
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://18.213.2.146:8080';
 
 const api = axios.create({
   baseURL: API_BASE,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
+// 🛡️ Interceptor: adjunta automáticamente el JWT a TODAS las peticiones
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token'); // ← usamos SIEMPRE la misma key
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Útil si quieres headers manuales en algún caso puntual
 export function getAuthHeaders() {
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem('token'); // unificado con el interceptor
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export default api;
+
+// log útil en desarrollo para saber qué backend está apuntando la app
+if (import.meta.env.DEV) {
+  // eslint-disable-next-line no-console
+  console.info('[api] API_BASE =', API_BASE);
+}
 
 /**
  * Resolver claves de imagen que pueden venir del backend.
@@ -60,6 +81,7 @@ export function resolveImage(clave) {
 
   return '';
 }
+
 /**
  * Valida un RUT chileno
  * @param {string} rut - RUT a validar (formato: XX.XXX.XXX-X)
@@ -72,33 +94,33 @@ export function validarRUT(rut) {
 
   // Eliminar puntos y guión
   const rutLimpio = rut.replace(/\./g, '').replace('-', '');
-  
+
   // Verificar que tenga al menos 8 caracteres (7 números + 1 dígito verificador)
   if (rutLimpio.length < 8) {
     return false;
   }
-  
+
   // Separar número y dígito verificador
   const numero = rutLimpio.slice(0, -1);
   const digitoVerificador = rutLimpio.slice(-1).toLowerCase();
-  
+
   // Verificar que el número contenga solo dígitos
   if (!/^\d+$/.test(numero)) {
     return false;
   }
-  
+
   // Calcular dígito verificador
   let suma = 0;
   let multiplicador = 2;
-  
+
   for (let i = numero.length - 1; i >= 0; i--) {
     suma += parseInt(numero[i]) * multiplicador;
     multiplicador = multiplicador === 7 ? 2 : multiplicador + 1;
   }
-  
+
   const resto = suma % 11;
   const digitoCalculado = resto === 0 ? '0' : resto === 1 ? 'k' : (11 - resto).toString();
-  
+
   return digitoVerificador === digitoCalculado;
 }
 
@@ -130,13 +152,13 @@ export function validarPassword(password) {
   if (password.length < 6) {
     return false;
   }
-  
+
   // Debe contener al menos una mayúscula, una minúscula, un número y un carácter especial
   const tieneMayuscula = /[A-Z]/.test(password);
   const tieneMinuscula = /[a-z]/.test(password);
   const tieneNumero = /\d/.test(password);
   const tieneEspecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-  
+
   return tieneMayuscula && tieneMinuscula && tieneNumero && tieneEspecial;
 }
 
@@ -154,27 +176,27 @@ export function validarFormulario(datos) {
   if (!datos.nombre || !datos.email || !datos.password) {
     return false;
   }
-  
+
   // Verificar que el nombre no esté vacío después de eliminar espacios
   if (datos.nombre.trim() === '') {
     return false;
   }
-  
+
   // Validar email
   if (!validarEmail(datos.email)) {
     return false;
   }
-  
+
   // Validar contraseña
   if (!validarPassword(datos.password)) {
     return false;
   }
-  
+
   return true;
 }
 
 /**
- * Autentica un usuario
+ * Autentica un usuario (dummy local)
  * @param {string} usuario - Nombre de usuario
  * @param {string} password - Contraseña
  * @returns {boolean} - true si las credenciales son correctas, false si no

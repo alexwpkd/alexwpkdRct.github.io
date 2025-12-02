@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ScrollButton from './ScrollButton.jsx';
-import axios from 'axios';
-// Header global se renderiza en App.jsx
+// ⬇️ en vez de axios directo, usamos tu cliente API unificado
+import api from '../api';
 
 function Login() {
     const [formData, setFormData] = useState({
@@ -19,7 +19,6 @@ function Login() {
             ...formData,
             [e.target.name]: e.target.value
         });
-        // Limpiar mensajes de error al escribir
         if (loginStatus) setLoginStatus('');
     };
 
@@ -27,7 +26,6 @@ function Login() {
         e.preventDefault();
         setLoading(true);
         
-        // Validación básica
         if (!formData.email || !formData.password) {
             setLoginStatus('Por favor completa todos los campos');
             setLoading(false);
@@ -35,29 +33,22 @@ function Login() {
         }
 
         try {
-            // Intentar autenticación contra el backend
             console.log('Intentando login (backend):', formData);
 
             const payload = { correo: formData.email, password: formData.password };
-
             let backendOk = false;
 
             try {
-                const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
-
-                const resp = await axios.post(`${API_BASE}/auth/login`, payload, {
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
+                // ⬇️ usamos el cliente `api` que ya tiene baseURL = 18.213.2.146:8080
+                const resp = await api.post('/auth/login', payload);
                 const data = resp.data;
 
-                // Guardar token y datos relevantes
-                localStorage.setItem('authToken', data.token || '');
+                // ⬇️ unificamos la key: SIEMPRE 'token'
+                localStorage.setItem('token', data.token || '');
                 if (data.rol) localStorage.setItem('userRole', data.rol.toLowerCase());
                 if (data.correo) localStorage.setItem('userEmail', data.correo);
                 if (data.idCliente) localStorage.setItem('idCliente', String(data.idCliente));
 
-                // Mostrar estado y redirigir según rol (mantener comportamiento previo)
                 if (data.rol && data.rol.toUpperCase() === 'ADMIN') {
                     setLoginStatus('success-admin');
                     navigate('/admin');
@@ -73,49 +64,30 @@ function Login() {
             } catch (err) {
                 if (err.response) {
                     if (err.response.status === 401) {
-                        // Credenciales incorrectas en backend: fallback local
-                        console.warn('Backend: credenciales incorrectas, aplicando fallback local');
+                        console.warn('Backend: credenciales incorrectas');
+                        setLoginStatus('Correo o contraseña incorrectos');
                     } else {
                         console.error('Backend error:', err.response.status, err.response.data);
                         setLoginStatus('Error del servidor. Intenta nuevamente.');
                     }
                 } else {
-                    console.warn('No se pudo conectar al backend, usando fallback local', err);
+                    console.warn('No se pudo conectar al backend', err);
+                    setLoginStatus('No se pudo conectar al servidor.');
                 }
             }
 
-            // Si el backend no autenticó (o no disponible), mantener la lógica local existente
+            // Si quieres, puedes mantener el fallback local,
+            // pero como ya tienes backend real, yo lo dejaría desactivado:
+            /*
             if (!backendOk) {
-                // Fallback local: considerar usuarios de la organización (admin/empleado)
-                // que tienen correos con el dominio '@alpha.cl'. Si la contraseña es
-                // 'admin' concedemos acceso administrativo localmente.
-                if (formData.email.toLowerCase().endsWith('@alpha.cl') && formData.password === 'admin') {
-                    setLoginStatus('success-admin');
-                    localStorage.setItem('authToken', 'admin-token');
-                    localStorage.setItem('userEmail', formData.email);
-                    localStorage.setItem('userRole', 'admin');
-                    navigate('/admin');
-                } else {
-                    // Buscar usuario registrado en localStorage
-                    const users = JSON.parse(localStorage.getItem('users') || '[]');
-                    const found = users.find(u => u.email === formData.email && u.password === formData.password);
-                    if (found) {
-                        setLoginStatus('success-user');
-                        localStorage.setItem('authToken', 'user-token');
-                        localStorage.setItem('userEmail', found.email);
-                        localStorage.setItem('userRole', 'user');
-                        // Mostrar mensaje y redirigir al Home
-                        setTimeout(() => {
-                            navigate('/');
-                        }, 1200);
-                    } else {
-                        setLoginStatus('Correo o contraseña incorrectos');
-                    }
-                }
+                // ... lógica local anterior ...
             }
+            */
 
-            // Resetear formulario
-            setFormData({ email: '', password: '' });
+            // Opcional: limpiar campos SOLO si el login fue exitoso
+            if (backendOk) {
+                setFormData({ email: '', password: '' });
+            }
             
         } catch {
             setLoginStatus('Error al iniciar sesión. Intenta nuevamente.');
@@ -124,23 +96,22 @@ function Login() {
         }
     };
 
-    // Eliminado: usuarios de prueba y autolleno
-
     return (
         <div className="Login">
-            
-            
             {/* hero area */}
             <div className="hero-area hero-bg">
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-9 offset-lg-2 text-center">
                             <div className="hero-text">
-                                        <div className="hero-text-tablecell">
+                                <div className="hero-text-tablecell">
                                     <h1>Inicia Sesión</h1>
-                                    {/* Botón centrado directamente debajo del título */}
                                     <div className="text-center mt-3">
-                                        <ScrollButton targetSelector=".full-height-section" playShots={false} className="scroll-button-inline" />
+                                        <ScrollButton
+                                            targetSelector=".full-height-section"
+                                            playShots={false}
+                                            className="scroll-button-inline"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -203,7 +174,6 @@ function Login() {
                                         </button>
                                     </form>
 
-                                    {/* Enlaces adicionales */}
                                     <div className="mt-4 text-center">
                                         <p><span style={{color:'#fff', fontWeight:'bold'}}>¿No tienes cuenta?</span> <Link to="/contact" className="text-primary">Regístrate aquí</Link></p>
                                         <p className="mt-2 text-muted">
@@ -211,7 +181,6 @@ function Login() {
                                         </p>
                                     </div>
 
-                                    {/* Estado del login */}
                                     {loginStatus && (
                                         <div 
                                             className={`mt-3 alert ${
