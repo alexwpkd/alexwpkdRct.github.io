@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ScrollButton from './ScrollButton.jsx';
 // ⬇️ en vez de axios directo, usamos tu cliente API unificado
-import api from '../api';
+import api from '../utils.js';
 
 function Login() {
     const [formData, setFormData] = useState({
@@ -47,6 +47,9 @@ function Login() {
                 localStorage.setItem('token', data.token || '');
                 if (data.rol) localStorage.setItem('userRole', data.rol.toLowerCase());
                 if (data.correo) localStorage.setItem('userEmail', data.correo);
+                // guardar nombre si el backend lo retorna (nombre, name, nombreCompleto)
+                const userName = data.nombre || data.name || data.nombreCompleto || data.correo || '';
+                if (userName) localStorage.setItem('userName', userName);
                 if (data.idCliente) localStorage.setItem('idCliente', String(data.idCliente));
 
                 if (data.rol && data.rol.toUpperCase() === 'ADMIN') {

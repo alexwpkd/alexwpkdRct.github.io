@@ -24,7 +24,7 @@ export default function App() {
 
   // Si el usuario está autenticado y es cliente, sincronizamos con backend
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     const idCliente = localStorage.getItem('idCliente');
     const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
 
@@ -65,7 +65,7 @@ export default function App() {
   }, []);
 
   async function agregarAlCarrito(producto, cantidad = 1) {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     const idCliente = localStorage.getItem('idCliente');
     const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
 
@@ -122,7 +122,7 @@ export default function App() {
   }
 
   async function eliminarDelCarrito(id) {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     const idCliente = localStorage.getItem('idCliente');
     const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
 
@@ -166,7 +166,7 @@ export default function App() {
   }
 
   async function actualizarCantidad(id, cantidad) {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     const idCliente = localStorage.getItem('idCliente');
     const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
 

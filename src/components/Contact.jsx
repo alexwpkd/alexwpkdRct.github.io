@@ -24,7 +24,7 @@ function Contact() {
     const [comunas, setComunas] = useState([]);
 
     useEffect(() => {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('token');
         const email = localStorage.getItem('userEmail');
         if (token) {
             setLoggedIn(true);
@@ -235,7 +235,7 @@ function Contact() {
 
                     const data = loginResp.data;
                     // Guardar token y datos
-                    localStorage.setItem('authToken', data.token || '');
+                    localStorage.setItem('token', data.token || '');
                     if (data.rol) localStorage.setItem('userRole', data.rol.toLowerCase());
                     if (data.correo) localStorage.setItem('userEmail', data.correo);
                     if (data.idCliente) localStorage.setItem('idCliente', String(data.idCliente));
@@ -314,7 +314,7 @@ function Contact() {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem('authToken');
+        localStorage.removeItem('token');
         localStorage.removeItem('userRole');
         localStorage.removeItem('userEmail');
         localStorage.removeItem('idCliente');

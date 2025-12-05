@@ -186,7 +186,7 @@ function Admin() {
                 imagenUrl: urlValue
             };
 
-            const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem('token');
 
             const headers = { 'Content-Type': 'application/json' };
             if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -214,7 +214,7 @@ function Admin() {
             // Si el backend no devolvió una URL de imagen, intentar obtener el producto creado
             if (!formatted.imageUrl) {
                 try {
-                    const token2 = localStorage.getItem('authToken');
+                    const token2 = localStorage.getItem('token');
                     const headers2 = token2 ? { Authorization: `Bearer ${token2}` } : {};
                     const id = creado.idProducto ?? creado.id;
                     if (id) {
@@ -271,7 +271,7 @@ function Admin() {
         const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
         try {
             // Obtener precios actuales desde el backend para cada producto (si es posible)
-            const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem('token');
             const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
             // Para simplicidad, intentamos crear la compra primero
@@ -337,7 +337,7 @@ function Admin() {
                             imagenUrl: resolvedImage
                         };
 
-                        const token3 = localStorage.getItem('authToken');
+                        const token3 = localStorage.getItem('token');
                         const headers3 = token3 ? { Authorization: `Bearer ${token3}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
                         await axios.put(`${API_BASE}/api/productos/${productoId}`, updatedDto, { headers: headers3 });
 
@@ -366,6 +366,142 @@ function Admin() {
         }
     };
 
+    // ======= Sección Personal (empleados) =======
+    function PersonalSection() {
+        const [employees, setEmployees] = useState([]);
+        const [loadingEmployees, setLoadingEmployees] = useState(false);
+        const [newEmployee, setNewEmployee] = useState({ nombre: '', correo: '', rut: '', cargo: '', telefono: '', password: '' });
+        const [creatingEmployee, setCreatingEmployee] = useState(false);
+
+        useEffect(() => {
+            let mounted = true;
+            const load = async () => {
+                setLoadingEmployees(true);
+                const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
+                try {
+                    const token = localStorage.getItem('token');
+                    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+                    const resp = await axios.get(`${API_BASE}/api/empleados`, { headers });
+                    if (!mounted) return;
+                    setEmployees(resp.data || []);
+                } catch (err) {
+                    console.warn('No se pudieron cargar empleados', err);
+                } finally {
+                    if (mounted) setLoadingEmployees(false);
+                }
+            };
+            load();
+            return () => { mounted = false; };
+        }, []);
+
+        const handleNewEmployeeChange = (e) => {
+            const { name, value } = e.target;
+            setNewEmployee(prev => ({ ...prev, [name]: value }));
+        };
+
+        const handleCreateEmployee = async (e) => {
+            e.preventDefault();
+            if (!newEmployee.nombre || !newEmployee.correo) {
+                alert('Por favor completa al menos nombre y correo');
+                return;
+            }
+            setCreatingEmployee(true);
+            const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
+            try {
+                const token = localStorage.getItem('token');
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+                const dto = {
+                    nombre: newEmployee.nombre,
+                    correo: newEmployee.correo,
+                    rut: newEmployee.rut,
+                    cargo: newEmployee.cargo,
+                    telefono: newEmployee.telefono,
+                    password: newEmployee.password
+                };
+                const resp = await axios.post(`${API_BASE}/api/empleados`, dto, { headers });
+                const creado = resp.data;
+                setEmployees(prev => [creado, ...prev]);
+                setNewEmployee({ nombre: '', correo: '', rut: '', cargo: '', telefono: '', password: '' });
+                alert('✅ Empleado creado correctamente');
+            } catch (err) {
+                console.error('Error creando empleado', err);
+                const serverMsg = err?.response?.data || err?.message || String(err);
+                alert('Error creando empleado: ' + serverMsg);
+            } finally {
+                setCreatingEmployee(false);
+            }
+        };
+
+        return (
+            <div>
+                <form onSubmit={handleCreateEmployee} className="mb-4">
+                    <div className="row">
+                        <div className="col-md-4 mb-2">
+                            <input type="text" name="nombre" className="form-control" placeholder="Nombre" value={newEmployee.nombre} onChange={handleNewEmployeeChange} />
+                        </div>
+                        <div className="col-md-4 mb-2">
+                            <input type="email" name="correo" className="form-control" placeholder="Correo" value={newEmployee.correo} onChange={handleNewEmployeeChange} />
+                        </div>
+                        <div className="col-md-4 mb-2">
+                            <input type="text" name="rut" className="form-control" placeholder="RUT" value={newEmployee.rut} onChange={handleNewEmployeeChange} />
+                        </div>
+                    </div>
+                    <div className="row mt-2">
+                        <div className="col-md-4 mb-2">
+                            <input type="text" name="cargo" className="form-control" placeholder="Cargo" value={newEmployee.cargo} onChange={handleNewEmployeeChange} />
+                        </div>
+                        <div className="col-md-4 mb-2">
+                            <input type="text" name="telefono" className="form-control" placeholder="Teléfono" value={newEmployee.telefono} onChange={handleNewEmployeeChange} />
+                        </div>
+                        <div className="col-md-4 mb-2">
+                            <input type="password" name="password" className="form-control" placeholder="Contraseña (temporal)" value={newEmployee.password} onChange={handleNewEmployeeChange} />
+                        </div>
+                    </div>
+                    <div className="row mt-2">
+                        <div className="col-12 text-end">
+                            <button className="btn btn-primary" type="submit" disabled={creatingEmployee}>{creatingEmployee ? 'Creando...' : 'Agregar Empleado'}</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div className="card">
+                    <div className="card-header">Listado de Empleados</div>
+                    <div className="card-body">
+                        {loadingEmployees ? (
+                            <div>Cargando empleados...</div>
+                        ) : (
+                            <div className="table-responsive">
+                                <table className="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Correo</th>
+                                            <th>RUT</th>
+                                            <th>Cargo</th>
+                                            <th>Teléfono</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {employees.map(emp => (
+                                            <tr key={emp.id || emp.idEmpleado || emp.correo}>
+                                                <td>{emp.nombre ?? emp.name ?? '-'}</td>
+                                                <td>{emp.correo ?? emp.email ?? '-'}</td>
+                                                <td>{emp.rut ?? '-'}</td>
+                                                <td>{emp.cargo ?? '-'}</td>
+                                                <td>{emp.telefono ?? emp.phone ?? '-'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="Admin">
             
@@ -387,7 +523,7 @@ function Admin() {
             </div>
             
             {/* Botón de scroll suave */}
-            <div className="text-center" style={{ marginTop: '-150px', marginBottom: '80px', position: 'relative', zIndex: 10 }}>
+            <div className="text-center" style={{ marginTop: '-80px', marginBottom: '80px', position: 'relative', zIndex: 10 }}>
                 <ScrollButton targetSelector=".container.mt-4.mb-5" playShots={false} />
             </div>
 
@@ -405,33 +541,17 @@ function Admin() {
                                     Inventario
                                 </button>
                             </li>
+                            {/* Purchases tab removed as requested */}
                             <li className="nav-item">
                                 <button 
-                                    className={`nav-link ${activeTab === 'purchases' ? 'active' : ''}`}
-                                    onClick={() => setActiveTab('purchases')}
-                                >
-                                    <i className="fas fa-shopping-cart me-2"></i>
-                                    Compras
-                                </button>
-                            </li>
-                            <li className="nav-item">
-                                <button 
-                                    className="nav-link disabled"
-                                    style={{ pointerEvents: 'none', opacity: 0.6 }}
+                                    className={`nav-link ${activeTab === 'personal' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('personal')}
                                 >
                                     <i className="fas fa-users me-2"></i>
                                     Personal
                                 </button>
                             </li>
-                            <li className="nav-item">
-                                <button 
-                                    className="nav-link disabled"
-                                    style={{ pointerEvents: 'none', opacity: 0.6 }}
-                                >
-                                    <i className="fas fa-file-alt me-2"></i>
-                                    Reportes
-                                </button>
-                            </li>
+                            {/* Reportes tab removed */}
                         </ul>
                     </div>
                 </div>
@@ -533,39 +653,7 @@ function Admin() {
                                     <i className="fas fa-boxes me-2"></i>
                                     Inventario de Productos
                                 </span>
-                                <div>
-                                    <button 
-                                        className="btn btn-light btn-sm me-2"
-                                        onClick={generateInventoryReport}
-                                    >
-                                        <i className="fas fa-file-export me-1"></i>
-                                        Generar Reporte
-                                    </button>
-                                    <button className="btn btn-light btn-sm" onClick={async () => {
-                                        setLoadingInventory(true);
-                                        try {
-                                            const resp = await api.get('/api/productos');
-                                            const list = resp.data || [];
-                                            const mapped = list.map(p => ({
-                                                id: p.idProducto ?? p.id,
-                                                name: p.nombre ?? p.name,
-                                                category: p.categoria ?? p.category,
-                                                price: p.precio ?? p.price ?? 0,
-                                                stock: p.stock ?? p.stockDisponible ?? 0,
-                                                status: (p.stock ?? 0) === 0 ? 'Agotado' : ((p.stock ?? 0) < 3 ? 'Stock crítico' : ((p.stock ?? 0) < 5 ? 'Stock bajo' : 'En stock')),
-                                                lastRestock: p.lastRestock ?? null,
-                                                imageUrl: p.imagenUrl ?? p.imagen?.url ?? p.urlImagen ?? null,
-                                                imagenClave: p.imagenClave ?? null
-                                            }));
-                                            if (mapped.length) setInventory(mapped);
-                                        } catch (err) {
-                                            console.warn('Error recargando inventario', err);
-                                            alert('No se pudo recargar inventario desde backend');
-                                        } finally {
-                                            setLoadingInventory(false);
-                                        }
-                                    }}>Recargar inventario</button>
-                                </div>
+                                <small className="text-white-50">Gestión de inventario</small>
                             </div>
                             <div className="card-body">
                                 <div className="table-responsive">
@@ -581,7 +669,6 @@ function Admin() {
                                                 <th className="text-white-custom">Estado</th>
                                                 <th className="text-white-custom">Ventas</th>
                                                 <th className="text-white-custom">Última Reposición</th>
-                                                <th className="text-white-custom">Acciones</th>
                                             </tr>
                                         </thead>
                                                       <tbody>
@@ -613,48 +700,7 @@ function Admin() {
                                                     </td>
                                                     <td style={{color: '#000'}}>-</td>
                                                     <td style={{color: '#000'}}>{product.lastRestock ? product.lastRestock : '-'}</td>
-                                                    <td>
-                                                        <div className="d-flex gap-2">
-                                                            <div className="input-group input-group-sm" style={{width: '200px'}}>
-                                                                <input 
-                                                                    type="number" 
-                                                                    className="form-control" 
-                                                                    placeholder="Cantidad"
-                                                                    value={newStock[product.id] || ''}
-                                                                    onChange={(e) => setNewStock(prev => ({
-                                                                        ...prev, 
-                                                                        [product.id]: parseInt(e.target.value) || ''
-                                                                    }))}
-                                                                    min="1"
-                                                                />
-                                                                <button 
-                                                                    className="btn btn-success"
-                                                                    onClick={() => handleAddStock(product.id, parseInt(newStock[product.id]) || 0)}
-                                                                    disabled={!newStock[product.id]}
-                                                                >
-                                                                    <i className="fas fa-plus"></i> Reponer
-                                                                </button>
-                                                            </div>
-                                                            <button className="btn btn-secondary btn-sm" onClick={async () => {
-                                                                // Intentar obtener el producto completo para actualizar imageUrl
-                                                                try {
-                                                                    const headers = getAuthHeaders();
-                                                                    const resp = await api.get(`/api/productos/${product.id}`, { headers });
-                                                                    const p = resp.data;
-                                                                    const resolvedImage = p.imagenUrl ?? p.imagen?.url ?? p.urlImagen ?? null;
-                                                                    if (resolvedImage) {
-                                                                        setInventory(prev => prev.map(it => it.id === product.id ? ({ ...it, imageUrl: resolvedImage }) : it));
-                                                                        alert('Imagen actualizada desde backend');
-                                                                    } else {
-                                                                        alert('No se encontró URL de imagen para este producto en el backend');
-                                                                    }
-                                                                } catch (err) {
-                                                                    console.error('Error obteniendo producto', err);
-                                                                    alert('Error al obtener producto del backend');
-                                                                }
-                                                            }}>Actualizar imagen</button>
-                                                        </div>
-                                                    </td>
+                                                    
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -677,48 +723,18 @@ function Admin() {
                     </div>
                 )}
 
-                {/* Pestaña: Compras (registrar compra / reabastecer stock) */}
-                {activeTab === 'purchases' && (
+                {/* Pestaña: Personal - administrar empleados (crear/listar) */}
+                {activeTab === 'personal' && (
                     <div className="tab-content">
                         <div className="row mb-4">
                             <div className="col-12">
                                 <div className="card">
                                     <div className="card-header d-flex justify-content-between align-items-center">
-                                        <strong>Registrar Compra</strong>
-                                        <small className="text-muted">Añade items para reabastecer stock</small>
+                                        <strong>Personal</strong>
+                                        <small className="text-muted">Agregar nuevo empleado</small>
                                     </div>
                                     <div className="card-body">
-                                        <form onSubmit={handleCreatePurchase}>
-                                            <div className="mb-3">
-                                                {purchaseRows.map((row, idx) => (
-                                                    <div key={idx} className="d-flex align-items-center mb-2">
-                                                        <select className="form-select me-2" style={{width: '60%'}} value={row.productoId ?? ''} onChange={(e) => handlePurchaseChange(idx, 'productoId', e.target.value)}>
-                                                            <option value="">Selecciona producto</option>
-                                                            {inventory.map(p => (
-                                                                <option key={p.id} value={p.id}>{p.name} (stock: {p.stock})</option>
-                                                            ))}
-                                                        </select>
-                                                        <input type="number" className="form-control me-2" style={{width: '120px'}} min="1" value={row.cantidad} onChange={(e) => handlePurchaseChange(idx, 'cantidad', e.target.value)} />
-                                                        <button type="button" className="btn btn-danger btn-sm" onClick={() => handleRemovePurchaseRow(idx)} disabled={purchaseRows.length === 1}>
-                                                            <i className="fas fa-trash"></i>
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-
-                                            <div className="d-flex justify-content-between">
-                                                <div>
-                                                    <button type="button" className="btn btn-outline-secondary btn-sm" onClick={handleAddPurchaseRow}>
-                                                        <i className="fas fa-plus me-1"></i> Agregar item
-                                                    </button>
-                                                </div>
-                                                <div>
-                                                    <button type="submit" className="btn btn-primary" disabled={purchasing}>
-                                                        {purchasing ? 'Registrando...' : (<><i className="fas fa-save me-1"></i> Registrar Compra</>)}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </form>
+                                        <PersonalSection />
                                     </div>
                                 </div>
                             </div>

@@ -1,9 +1,8 @@
+// src/utils.js
 import axios from 'axios';
 import images from './assets/images/index.js';
 
-// 👇 AHORA tu app apunta por defecto a la IP de la instancia EC2
-// Si quieres sobreescribirlo en el futuro, crea un .env con VITE_API_BASE
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://18.213.2.146:8080';
+const API_BASE = 'http://34.227.195.212:8080';  // 👈 NUEVA IP
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -12,10 +11,9 @@ const api = axios.create({
   },
 });
 
-// 🛡️ Interceptor: adjunta automáticamente el JWT a TODAS las peticiones
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token'); // ← usamos SIEMPRE la misma key
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -24,19 +22,17 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Útil si quieres headers manuales en algún caso puntual
 export function getAuthHeaders() {
-  const token = localStorage.getItem('token'); // unificado con el interceptor
+  const token = localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export default api;
 
-// log útil en desarrollo para saber qué backend está apuntando la app
 if (import.meta.env.DEV) {
-  // eslint-disable-next-line no-console
   console.info('[api] API_BASE =', API_BASE);
 }
+
 
 /**
  * Resolver claves de imagen que pueden venir del backend.

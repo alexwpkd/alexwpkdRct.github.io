@@ -164,7 +164,7 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad, shippingCost
           <h4 className="text-white-custom">Total: ${totalConIva + shipping}</h4>
           <button className="btn btn-custom mt-3 text-white-custom" onClick={async () => {
             // Confirmar compra: usar checkout backend + crear envio
-            const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem('token');
             const idCliente = localStorage.getItem('idCliente');
             const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
 

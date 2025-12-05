@@ -12,19 +12,25 @@ export default function Header() {
 
   const [loggedIn, setLoggedIn] = useState(false)
   const [userEmail, setUserEmail] = useState('')
+  const [userName, setUserName] = useState('')
+  const [userRole, setUserRole] = useState('')
   const navigate = useNavigate()
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken')
+    const token = localStorage.getItem('token')
     const email = localStorage.getItem('userEmail')
+    const name = localStorage.getItem('userName')
+    const role = localStorage.getItem('userRole')
     if (token) {
       setLoggedIn(true)
       setUserEmail(email || '')
+      setUserName(name || email || '')
+      setUserRole(role || '')
     }
   }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken')
+    localStorage.removeItem('token')
     localStorage.removeItem('userRole')
     localStorage.removeItem('userEmail')
     localStorage.removeItem('idCliente')
@@ -83,11 +89,13 @@ export default function Header() {
                       </NavLink>
                       {loggedIn && (
                         <span style={{marginLeft:12, display:'inline-flex', alignItems:'center', gap:8}}>
-                          <button className="btn btn-sm btn-light" style={{display:'inline-flex', alignItems:'center', gap:8}} onClick={() => {}} title="Mi cuenta">
+                          <button className="btn btn-sm btn-light" style={{display:'inline-flex', alignItems:'center', gap:8}} onClick={() => { if (userRole && (userRole.toLowerCase()==='admin' || userRole.toLowerCase()==='empleado')) navigate('/admin'); else navigate('/'); }} title="Mi cuenta">
                             <i className="fas fa-user-circle"></i>
+                            <span style={{marginLeft:6}}>{(userRole && (userRole.toLowerCase()==='admin' || userRole.toLowerCase()==='empleado')) ? `Admin: ${userName}` : `Usuario: ${userName}`}</span>
                           </button>
                           <button className="btn btn-sm btn-danger" onClick={handleLogout} title="Cerrar sesión">
                             <i className="fas fa-sign-out-alt"></i>
+                            <span style={{marginLeft:6}}>Salir</span>
                           </button>
                         </span>
                       )}
