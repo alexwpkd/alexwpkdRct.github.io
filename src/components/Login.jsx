@@ -90,6 +90,12 @@ function Login() {
             // Opcional: limpiar campos SOLO si el login fue exitoso
             if (backendOk) {
                 setFormData({ email: '', password: '' });
+                    // Notificar al resto de la app que la autenticación cambió
+                    try { 
+                        // Marcar sesión activa en esta pestaña
+                        try { sessionStorage.setItem('authenticated', 'true'); } catch(e) {}
+                        window.dispatchEvent(new Event('authChanged')); 
+                    } catch(e) { /* no crítico */ }
             }
             
         } catch {

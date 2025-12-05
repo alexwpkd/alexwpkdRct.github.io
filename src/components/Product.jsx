@@ -50,7 +50,6 @@ function Product({ agregarAlCarrito }) {
     if (!product) {
         return (
             <div className="Product">
-                <Header />
                 <div className="breadcrumb-section breadcrumb-bg">
                     <div className="container text-center">
                         <h1>Producto No Encontrado</h1>
@@ -60,7 +59,6 @@ function Product({ agregarAlCarrito }) {
                 <div className="container text-center mt-5">
                     <Link to="/shop" className="boxed-btn">Volver a la Tienda</Link>
                 </div>
-                <Footer />
             </div>
         );
     }

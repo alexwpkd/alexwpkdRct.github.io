@@ -17,10 +17,8 @@ import "./styles/shots.css";
 
 export default function App() {
   const [carrito, setCarrito] = useState([]);
-  const [shippingCost, setShippingCost] = useState(() => {
-    const s = localStorage.getItem('shippingCost');
-    return s ? parseInt(s, 10) : null;
-  });
+  const SHIPPING_CONSTANT = 15000;
+  const [shippingCost] = useState(SHIPPING_CONSTANT);
 
   // Si el usuario está autenticado y es cliente, sincronizamos con backend
   useEffect(() => {
@@ -112,12 +110,7 @@ export default function App() {
         );
       }
       const next = [...prev, { ...producto, cantidad: Math.min(cantidad, producto.stock || producto.enStock || 1) }];
-      // Asignar costo de envío aleatorio entre 5000 y 15000 si aún no existe
-      if (!shippingCost) {
-        const random = Math.floor(Math.random() * (15000 - 5000 + 1)) + 5000;
-        setShippingCost(random);
-        localStorage.setItem('shippingCost', String(random));
-      }
+      // shippingCost is a fixed constant (SHIPPING_CONSTANT)
       return next;
     });
   }
@@ -137,16 +130,8 @@ export default function App() {
         }
         // actualizar estado local
         setCarrito(prev => prev.filter(item => item.id !== id));
-        // Si quedó vacío el carrito, limpiar shippingCost
-        setTimeout(() => {
-          setCarrito(prev => {
-            if (!prev || prev.length === 0) {
-              setShippingCost(null);
-              localStorage.removeItem('shippingCost');
-            }
-            return prev;
-          });
-        }, 50);
+        // shippingCost is constant; no need to clear it when carrito queda vacío
+        setTimeout(() => { setCarrito(prev => prev); }, 50);
         return;
       } catch (err) {
         console.warn('No se pudo eliminar item en backend, usando fallback local', err);
@@ -156,10 +141,7 @@ export default function App() {
     // Fallback local
     setCarrito(prev => {
       const next = prev.filter(item => item.id !== id);
-      if (next.length === 0) {
-        setShippingCost(null);
-        localStorage.removeItem('shippingCost');
-      }
+      // shippingCost is constant; do not clear
       return next;
     });
   }

@@ -1,6 +1,7 @@
 // src/components/Admin.jsx
 import React, { useState, useEffect } from 'react';
 import api, { getAuthHeaders } from '../utils.js';
+import { showAxiosError } from '../utils/showAxiosError.js';
 import { useProductData } from './ProductData';
 import ScrollButton from './ScrollButton.jsx';
 import images from '../assets/images/index.js';
@@ -369,7 +370,7 @@ function Admin() {
     function PersonalSection() {
         const [employees, setEmployees] = useState([]);
         const [loadingEmployees, setLoadingEmployees] = useState(false);
-        const [newEmployee, setNewEmployee] = useState({ nombre: '', correo: '', rut: '', cargo: '', telefono: '', password: '' });
+        const [newEmployee, setNewEmployee] = useState({ nombre: '', apellido: '', correo: '', rut: '', password: '' });
         const [creatingEmployee, setCreatingEmployee] = useState(false);
 
         useEffect(() => {
@@ -405,28 +406,26 @@ function Admin() {
                 return;
             }
             setCreatingEmployee(true);
-            const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
             try {
                 const token = localStorage.getItem('token');
                 const headers = { 'Content-Type': 'application/json' };
                 if (token) headers['Authorization'] = `Bearer ${token}`;
                 const dto = {
                     nombre: newEmployee.nombre,
+                    apellido: newEmployee.apellido,
                     correo: newEmployee.correo,
                     rut: newEmployee.rut,
-                    cargo: newEmployee.cargo,
-                    telefono: newEmployee.telefono,
                     password: newEmployee.password
                 };
-                const resp = await api.post('/api/empleados', dto, { headers });
+
+                // Usar endpoint público de registro de empleado según controlador
+                const resp = await api.post('/auth/registro/empleado', dto, { headers });
                 const creado = resp.data;
                 setEmployees(prev => [creado, ...prev]);
-                setNewEmployee({ nombre: '', correo: '', rut: '', cargo: '', telefono: '', password: '' });
+                setNewEmployee({ nombre: '', apellido: '', correo: '', rut: '', password: '' });
                 alert('✅ Empleado creado correctamente');
             } catch (err) {
-                console.error('Error creando empleado', err);
-                const serverMsg = err?.response?.data || err?.message || String(err);
-                alert('Error creando empleado: ' + serverMsg);
+                showAxiosError('Error creando empleado', err);
             } finally {
                 setCreatingEmployee(false);
             }
@@ -436,24 +435,23 @@ function Admin() {
             <div>
                 <form onSubmit={handleCreateEmployee} className="mb-4">
                     <div className="row">
-                        <div className="col-md-4 mb-2">
+                        <div className="col-md-6 mb-2">
                             <input type="text" name="nombre" className="form-control" placeholder="Nombre" value={newEmployee.nombre} onChange={handleNewEmployeeChange} />
                         </div>
-                        <div className="col-md-4 mb-2">
+                        <div className="col-md-6 mb-2">
+                            <input type="text" name="apellido" className="form-control" placeholder="Apellidos" value={newEmployee.apellido} onChange={handleNewEmployeeChange} />
+                        </div>
+                    </div>
+                    <div className="row mt-2">
+                        <div className="col-md-6 mb-2">
                             <input type="email" name="correo" className="form-control" placeholder="Correo" value={newEmployee.correo} onChange={handleNewEmployeeChange} />
                         </div>
-                        <div className="col-md-4 mb-2">
+                        <div className="col-md-6 mb-2">
                             <input type="text" name="rut" className="form-control" placeholder="RUT" value={newEmployee.rut} onChange={handleNewEmployeeChange} />
                         </div>
                     </div>
                     <div className="row mt-2">
-                        <div className="col-md-4 mb-2">
-                            <input type="text" name="cargo" className="form-control" placeholder="Cargo" value={newEmployee.cargo} onChange={handleNewEmployeeChange} />
-                        </div>
-                        <div className="col-md-4 mb-2">
-                            <input type="text" name="telefono" className="form-control" placeholder="Teléfono" value={newEmployee.telefono} onChange={handleNewEmployeeChange} />
-                        </div>
-                        <div className="col-md-4 mb-2">
+                        <div className="col-md-6 mb-2">
                             <input type="password" name="password" className="form-control" placeholder="Contraseña (temporal)" value={newEmployee.password} onChange={handleNewEmployeeChange} />
                         </div>
                     </div>
@@ -475,20 +473,20 @@ function Admin() {
                                     <thead>
                                         <tr>
                                             <th>Nombre</th>
+                                            <th>Apellido</th>
                                             <th>Correo</th>
                                             <th>RUT</th>
-                                            <th>Cargo</th>
-                                            <th>Teléfono</th>
+                                            <th>Administrador</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {employees.map(emp => (
                                             <tr key={emp.id || emp.idEmpleado || emp.correo}>
                                                 <td>{emp.nombre ?? emp.name ?? '-'}</td>
+                                                <td>{emp.apellido ?? '-'}</td>
                                                 <td>{emp.correo ?? emp.email ?? '-'}</td>
                                                 <td>{emp.rut ?? '-'}</td>
-                                                <td>{emp.cargo ?? '-'}</td>
-                                                <td>{emp.telefono ?? emp.phone ?? '-'}</td>
+                                                <td>{(emp.administrador === true || emp.administrador === false) ? (emp.administrador ? 'Sí' : 'No') : (emp.administrador ?? '-')}</td>
                                             </tr>
                                         ))}
                                     </tbody>

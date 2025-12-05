@@ -17,15 +17,37 @@ export default function Header() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    const email = localStorage.getItem('userEmail')
-    const name = localStorage.getItem('userName')
-    const role = localStorage.getItem('userRole')
-    if (token) {
-      setLoggedIn(true)
-      setUserEmail(email || '')
-      setUserName(name || email || '')
-      setUserRole(role || '')
+    const updateAuthFromStorage = () => {
+      const token = localStorage.getItem('token')
+      const email = localStorage.getItem('userEmail')
+      const name = localStorage.getItem('userName')
+      const role = localStorage.getItem('userRole')
+      // Only consider logged in if session flag set in this tab AND token exists
+      const sessionFlag = (() => { try { return sessionStorage.getItem('authenticated') } catch(e) { return null } })();
+      if (token && sessionFlag === 'true') {
+        setLoggedIn(true)
+        setUserEmail(email || '')
+        setUserName(name || email || '')
+        setUserRole(role || '')
+      } else {
+        setLoggedIn(false)
+        setUserEmail('')
+        setUserName('')
+        setUserRole('')
+      }
+    }
+
+    // Inicializar estado
+    updateAuthFromStorage()
+
+    // Escuchar cambios de auth dentro de la misma pestaña
+    window.addEventListener('authChanged', updateAuthFromStorage)
+    // Escuchar cambios desde otras pestañas
+    window.addEventListener('storage', updateAuthFromStorage)
+
+    return () => {
+      window.removeEventListener('authChanged', updateAuthFromStorage)
+      window.removeEventListener('storage', updateAuthFromStorage)
     }
   }, [])
 
@@ -33,10 +55,16 @@ export default function Header() {
     localStorage.removeItem('token')
     localStorage.removeItem('userRole')
     localStorage.removeItem('userEmail')
+    localStorage.removeItem('userName')
     localStorage.removeItem('idCliente')
     setLoggedIn(false)
     setUserEmail('')
+    setUserName('')
     navigate('/')
+    try { 
+      try { sessionStorage.removeItem('authenticated') } catch(e) {}
+      window.dispatchEvent(new Event('authChanged')) 
+    } catch(e) {}
   }
 
   return (

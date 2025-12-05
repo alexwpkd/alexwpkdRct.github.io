@@ -2,7 +2,7 @@
 import axios from 'axios';
 import images from './assets/images/index.js';
 
-const API_BASE = 'http://34.227.195.212:8080';  // 👈 NUEVA IP
+const API_BASE = 'http://44.222.209.205:8080';  // 👈 NUEVA IP
 
 const api = axios.create({
   baseURL: API_BASE,

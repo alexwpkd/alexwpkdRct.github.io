@@ -7,9 +7,37 @@ import ScrollButton from './ScrollButton.jsx';
 
 function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad, shippingCost }) {
   const navigate = useNavigate();
-  const [envioData, setEnvioData] = useState({ direccionEntrega: '', ciudad: '', comuna: '', costoEnvio: '' });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [envioData, setEnvioData] = useState({ direccionEntrega: '', ciudad: '', comuna: '', costoEnvio: shippingCost || '' });
   const [comunas, setComunas] = useState([]);
   const [processing, setProcessing] = useState(false);
+
+  // Prefill envio data from registered cliente if available
+  useEffect(() => {
+    const tokenNow = localStorage.getItem('token');
+    const idClienteNow = localStorage.getItem('idCliente');
+    setIsAuthenticated(Boolean(tokenNow && idClienteNow));
+
+    const token = localStorage.getItem('token');
+    const idCliente = localStorage.getItem('idCliente');
+    if (token && idCliente) {
+      api.get(`/api/clientes/${idCliente}`).then(resp => {
+        const c = resp.data || {};
+        const direccion = c.direccion ?? c.direccionEntrega ?? '';
+        // comuna puede venir como objeto o id
+        const comunaVal = c.comuna ? (c.comuna.idComuna ?? c.comuna.id ?? c.comuna.nombre) : '';
+        const ciudadVal = c.ciudad ?? (c.comuna && c.comuna.region && (c.comuna.region.nombre || c.comuna.region.nombreRegion)) ?? '';
+        setEnvioData(prev => ({ ...prev, direccionEntrega: direccion, comuna: comunaVal, ciudad: ciudadVal, costoEnvio: shippingCost || prev.costoEnvio }));
+      }).catch(err => {
+        // Si falla, mantenemos lo que haya en envioData
+        console.warn('No se pudieron cargar datos de cliente para envío:', err);
+        setEnvioData(prev => ({ ...prev, costoEnvio: shippingCost || prev.costoEnvio }));
+      });
+    } else {
+      // No hay sesión de cliente: solo asegurar costo fijo
+      setEnvioData(prev => ({ ...prev, costoEnvio: shippingCost || prev.costoEnvio }));
+    }
+  }, [shippingCost]);
 
   useEffect(() => {
     api.get('/api/comunas').then(r => {
@@ -43,27 +71,56 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad, shippingCost
   // Normaliza datos para evitar NaN
   const getPrice = item => Number(item.price ?? item.precio ?? 0);
   const getStock = item => Number(item.stock ?? item.enStock ?? 1);
+  // Mejorar parseo de precio: soportar priceNumber, precio, o cadenas con símbolos
+  const parsePrice = (item) => {
+    if (typeof item === 'number') return item;
+    // objeto esperado
+    const n = item?.priceNumber ?? item?.precio ?? item?.price ?? 0;
+    if (typeof n === 'number') return n;
+    if (typeof n === 'string') {
+      // eliminar símbolos y separadores
+      const cleaned = n.replace(/[^0-9\-\.]/g, '');
+      const parsed = parseFloat(cleaned.replace(/\./g, ''));
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+  };
 
-  const total = carrito.reduce((acc, item) => acc + getPrice(item) * item.cantidad, 0);
-  const iva = Math.round(total * 0.19);
-  const totalConIva = total + iva;
+  const getPriceNum = item => Number(parsePrice(item));
   const shipping = Number(shippingCost || envioData.costoEnvio || 0);
 
-  // Distribuir shipping proporcionalmente entre items para sumar a cada subtotal
-  const itemSubtotals = carrito.map(item => {
-    const itemBase = getPrice(item) * item.cantidad;
-    const proportion = total > 0 ? itemBase / total : 0;
-    const itemShipping = Math.round(shipping * proportion);
-    return { id: item.id, base: itemBase, shipping: itemShipping, total: itemBase + itemShipping };
+  // Calcular totales por línea incluyendo IVA por artículo (redondeado por línea)
+  const itemLines = carrito.map(item => {
+    const price = getPriceNum(item);
+    const qty = Number(item.cantidad || 1);
+    const base = price * qty;
+    const iva = Math.round(base * 0.19);
+    return { id: item.id, base, iva, qty, price };
   });
 
+  const totalBase = itemLines.reduce((s, it) => s + it.base, 0);
+  const totalIva = itemLines.reduce((s, it) => s + it.iva, 0);
+
+  // Distribuir shipping proporcionalmente sobre la base (antes de IVA)
+  const itemSubtotals = itemLines.map(it => {
+    const proportion = totalBase > 0 ? it.base / totalBase : 0;
+    const itemShipping = Math.round(shipping * proportion);
+    const total = it.base + it.iva + itemShipping;
+    return { id: it.id, base: it.base, iva: it.iva, shipping: itemShipping, total };
+  });
+
+  // Ajuste de redondeo en shipping para que la suma coincida
   const totalShippingAllocated = itemSubtotals.reduce((s, it) => s + it.shipping, 0);
-  // Fix rounding difference by adjusting the first item
   if (shipping > 0 && totalShippingAllocated !== shipping && itemSubtotals.length > 0) {
     const diff = shipping - totalShippingAllocated;
     itemSubtotals[0].shipping += diff;
     itemSubtotals[0].total += diff;
   }
+
+  const total = totalBase;
+  const iva = totalIva;
+  const totalConIva = total + iva;
+
 
   // Incrementador de cantidad
   const handleIncrement = (item) => {
@@ -80,6 +137,20 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad, shippingCost
   return (
     <>
       <Hero title="ARSENAL" />
+      {/* Aviso si el usuario no está autenticado */}
+      {!isAuthenticated && (
+        <div className="container mt-3">
+          <div className="alert alert-warning d-flex justify-content-between align-items-center">
+            <div>
+              <strong>No estás autenticado:</strong> Debes iniciar sesión para confirmar compras y guardar datos de envío.
+            </div>
+            <div style={{display: 'flex', gap: 8}}>
+              <button className="btn btn-sm btn-primary" onClick={() => navigate('/login')}>Iniciar sesión</button>
+              <button className="btn btn-sm btn-outline-secondary" onClick={() => navigate('/contact')}>Registrarme</button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Botón de scroll suave */}
       <div className="text-center" style={{ marginTop: '-150px', marginBottom: '80px', position: 'relative', zIndex: 10 }}>
@@ -111,7 +182,7 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad, shippingCost
                 </td>
                 <td className="text-white-custom">${(() => {
                   const it = itemSubtotals.find(s => s.id === item.id);
-                  return it ? it.total : (getPrice(item) * item.cantidad);
+                  return it ? it.total.toLocaleString('es-CL') : (getPriceNum(item) * item.cantidad).toLocaleString('es-CL');
                 })()}</td>
                 <td className="text-white-custom">
                   <button className="btn btn-danger btn-sm" onClick={() => eliminarDelCarrito(item.id)}>
@@ -147,7 +218,7 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad, shippingCost
             </div>
             <div className="row g-2 mt-3">
               <div className="col-md-3">
-                <input type="number" className="form-control" placeholder="Costo envío (CLP)" value={envioData.costoEnvio || shippingCost || ''} onChange={e => setEnvioData(prev => ({ ...prev, costoEnvio: e.target.value }))} />
+                <input type="number" readOnly className="form-control" placeholder="Costo envío (CLP)" value={envioData.costoEnvio || shippingCost || ''} />
               </div>
               <div className="col-md-9 text-end">
                 <small className="text-muted">El costo de envío se puede ajustar antes de confirmar la compra.</small>
@@ -157,21 +228,21 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad, shippingCost
         </div>
 
         <div className="text-right mt-3">
-          <h4 className="text-white-custom">Subtotal: ${total}</h4>
-          <h5 className="text-white-custom">IVA (19%): ${iva}</h5>
-          <h5 className="text-white-custom">Envío: ${shipping}</h5>
-          <h4 className="text-white-custom">Total: ${totalConIva + shipping}</h4>
+          <h4 className="text-white-custom">Subtotal: ${total.toLocaleString('es-CL')}</h4>
+          <h5 className="text-white-custom">IVA (19%): ${iva.toLocaleString('es-CL')}</h5>
+          <h5 className="text-white-custom">Envío: ${shipping.toLocaleString('es-CL')}</h5>
+          <h4 className="text-white-custom">Total: ${(totalConIva + shipping).toLocaleString('es-CL')}</h4>
           <button className="btn btn-custom mt-3 text-white-custom" onClick={async () => {
             // Confirmar compra: usar checkout backend + crear envio
             const token = localStorage.getItem('token');
             const idCliente = localStorage.getItem('idCliente');
-            const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
-
             if (!token || !idCliente) {
-              alert('Debes iniciar sesión como cliente para confirmar la compra');
+              // UX: si no autenticado, redirigir al login con mensaje
+              alert('Debes iniciar sesión para confirmar la compra. Serás redirigido al inicio de sesión.');
               navigate('/login');
               return;
             }
+            const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
 
             if (!envioData.direccionEntrega || !envioData.ciudad || !envioData.comuna) {
               alert('Por favor completa los datos de envío');
