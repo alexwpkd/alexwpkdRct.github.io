@@ -12,7 +12,7 @@ import Admin from './components/Admin.jsx';
 import Product from './components/Product.jsx';
 import Carrito from './components/Carrito.jsx';
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from './utils.js';
 import "./styles/shots.css";
 
 export default function App() {
@@ -26,22 +26,17 @@ export default function App() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const idCliente = localStorage.getItem('idCliente');
-    const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
 
     const loadBackendCart = async () => {
       if (!token || !idCliente) return;
       try {
         // Obtener carrito por cliente
-        const carritoResp = await axios.get(`${API_BASE}/api/carritos/cliente/${idCliente}`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
-        });
+        const carritoResp = await api.get(`/api/carritos/cliente/${idCliente}`);
         const carritoData = carritoResp.data;
         if (!carritoData || !carritoData.idCarrito) return;
 
         // Obtener detalle del carrito
-        const detallesResp = await axios.get(`${API_BASE}/api/detalle-carrito/carrito/${carritoData.idCarrito}`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
-        });
+        const detallesResp = await api.get(`/api/detalle-carrito/carrito/${carritoData.idCarrito}`);
         const detalles = detallesResp.data || [];
 
         // Mapear a la forma que usan los componentes: id = producto.idProducto, cantidad, price, stock, name, detalleId
@@ -57,6 +52,13 @@ export default function App() {
 
         setCarrito(mapped);
       } catch (err) {
+        // Si el backend responde 404 significa que el cliente aún no tiene carrito: tratar como vacío
+        const status = err?.response?.status;
+        if (status === 404) {
+          // carrito vacío
+          setCarrito([]);
+          return;
+        }
         console.warn('No se pudo cargar carrito desde backend:', err);
       }
     };
@@ -67,14 +69,13 @@ export default function App() {
   async function agregarAlCarrito(producto, cantidad = 1) {
     const token = localStorage.getItem('token');
     const idCliente = localStorage.getItem('idCliente');
-    const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
+    
 
     // Si hay sesión de cliente, intentar backend
     if (token && idCliente) {
       try {
-        const resp = await axios.post(`${API_BASE}/api/carritos/${idCliente}/agregar`, null, {
-          params: { productoId: producto.id ?? producto.idProducto, cantidad },
-          headers: { Authorization: `Bearer ${token}` }
+        const resp = await api.post(`/api/carritos/${idCliente}/agregar`, null, {
+          params: { productoId: producto.id ?? producto.idProducto, cantidad }
         });
 
         const detalle = resp.data; // DetalleCarrito creado
@@ -124,7 +125,7 @@ export default function App() {
   async function eliminarDelCarrito(id) {
     const token = localStorage.getItem('token');
     const idCliente = localStorage.getItem('idCliente');
-    const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
+    
 
     // Si hay sesión, buscar detalleId en el carrito y llamar al backend
     if (token && idCliente) {
@@ -132,9 +133,7 @@ export default function App() {
         const item = carrito.find(i => i.id === id);
         const detalleId = item?.cantidadKey;
         if (detalleId) {
-          await axios.delete(`${API_BASE}/api/carritos/${idCliente}/eliminar-item/${detalleId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          await api.delete(`/api/carritos/${idCliente}/eliminar-item/${detalleId}`);
         }
         // actualizar estado local
         setCarrito(prev => prev.filter(item => item.id !== id));
@@ -168,7 +167,7 @@ export default function App() {
   async function actualizarCantidad(id, cantidad) {
     const token = localStorage.getItem('token');
     const idCliente = localStorage.getItem('idCliente');
-    const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
+    
 
     const bounded = Math.max(1, Math.min(cantidad, (carrito.find(i => i.id === id)?.stock || 1)));
 
@@ -177,9 +176,8 @@ export default function App() {
         const item = carrito.find(i => i.id === id);
         const detalleId = item?.cantidadKey;
         if (detalleId) {
-          const resp = await axios.put(`${API_BASE}/api/carritos/${idCliente}/actualizar/${detalleId}`, null, {
-            params: { cantidad: bounded },
-            headers: { Authorization: `Bearer ${token}` }
+          const resp = await api.put(`/api/carritos/${idCliente}/actualizar/${detalleId}`, null, {
+            params: { cantidad: bounded }
           });
           const actualizado = resp.data;
           // actualizar estado local

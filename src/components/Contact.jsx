@@ -2,7 +2,8 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import images from '../assets/images/index.js';
 import ScrollButton from './ScrollButton';
-import axios from 'axios';
+import api from '../utils.js';
+import { showAxiosError } from '../utils/showAxiosError.js';
 
 function Contact() {
     const [formData, setFormData] = useState({
@@ -71,13 +72,25 @@ function Contact() {
         'Magallanes': ['Punta Arenas', 'Laguna Blanca', 'Río Verde', 'San Gregorio', 'Cabo de Hornos', 'Antártica', 'Porvenir', 'Primavera', 'Timaukel', 'Natales', 'Torres del Paine'],
     }), []);
 
-    // Comunas/Regiones desde backend si están disponibles
+    // Comunas/Regiones desde backend si están disponibles (si el backend requiere auth, hacemos fallback)
     useEffect(() => {
-        const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
-        // fetch regiones
-        axios.get(`${API_BASE}/api/regiones`).then(r => setRegiones(r.data)).catch(() => {});
-        // fetch comunas
-        axios.get(`${API_BASE}/api/comunas`).then(r => setComunas(r.data)).catch(() => {});
+        const loadUbicacion = async () => {
+            try {
+                const [regResp, comResp] = await Promise.all([
+                    api.get('/api/regiones'),
+                    api.get('/api/comunas')
+                ]);
+                setRegiones(regResp.data || []);
+                setComunas(comResp.data || []);
+            } catch (err) {
+                // Si falla, mostrar mensaje legible y usar fallback estático
+                showAxiosError('Error cargando regiones/comunas', err);
+                setRegiones([]);
+                setComunas([]);
+            }
+        };
+
+        loadUbicacion();
     }, []);
 
     const comunaOptions = useMemo(() => {
@@ -201,8 +214,7 @@ function Contact() {
         }
 
         // Intentar crear el cliente en el backend
-        try {
-            const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
+            try {
 
             // Construir payload de comuna: si formData.comuna es un id, enviamos { idComuna },
             // de lo contrario enviamos { nombre } como fallback.
@@ -221,14 +233,15 @@ function Contact() {
                 comuna: comunaPayload
             };
 
-            const resp = await axios.post(`${API_BASE}/api/clientes`, payload, {
+            // En el backend el endpoint para registro de clientes es /auth/registro/cliente
+            const resp = await api.post('/auth/registro/cliente', payload, {
                 headers: { 'Content-Type': 'application/json' }
             });
 
             if (resp.status === 200 || resp.status === 201) {
                 // Registro creado correctamente. Intentar login automático contra /auth/login
                 try {
-                    const loginResp = await axios.post(`${API_BASE}/auth/login`, {
+                    const loginResp = await api.post('/auth/login', {
                         correo: formData.email,
                         password: formData.password
                     }, { headers: { 'Content-Type': 'application/json' } });
@@ -269,47 +282,7 @@ function Contact() {
             }
 
         } catch (err) {
-            console.error('Error guardando usuario en backend:', err);
-            // Fallback: mantener el comportamiento local previo
-            try {
-                const regularUsers = JSON.parse(localStorage.getItem('regular_users') || '[]');
-                if (regularUsers.some(user => user.email === formData.email)) {
-                    alert('❌ Este correo ya está registrado. Puedes iniciar sesión.');
-                    return;
-                }
-                const newUser = {
-                    id: Date.now(),
-                    name: `${formData.name} ${formData.lastname}`,
-                    email: formData.email,
-                    password: formData.password,
-                    phone: formData.phone,
-                    region: formData.region,
-                    comuna: formData.comuna,
-                    address: formData.address,
-                    status: 'Activo',
-                    registerDate: new Date().toISOString().split('T')[0],
-                    role: 'user'
-                };
-                const updatedUsers = [...regularUsers, newUser];
-                localStorage.setItem('regular_users', JSON.stringify(updatedUsers));
-                alert('✅ Registro guardado localmente. Ya puedes iniciar sesión.');
-                setFormData({
-                    name: '',
-                    lastname: '',
-                    phone: '',
-                    email: '',
-                    region: '',
-                    comuna: '',
-                    address: '',
-                    password: ''
-                });
-                setPasswordError('');
-                setRutError('');
-                setTimeout(() => navigate('/login'), 1200);
-            } catch (localErr) {
-                console.error('Fallback local falló:', localErr);
-                alert('Hubo un problema guardando tu registro. Intenta nuevamente.');
-            }
+            showAxiosError('Error guardando usuario en backend', err);
         }
     };
 

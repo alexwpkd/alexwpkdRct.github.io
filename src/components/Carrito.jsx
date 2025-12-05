@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils.js';
 import Hero from './Hero.jsx';
 import ScrollButton from './ScrollButton.jsx';
 // import images from '../assets/images/index.js';
@@ -12,8 +12,7 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad, shippingCost
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
-    axios.get(`${API_BASE}/api/comunas`).then(r => {
+    api.get('/api/comunas').then(r => {
       setComunas(r.data || []);
     }).catch(() => {
       setComunas([]);
@@ -182,7 +181,7 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad, shippingCost
             setProcessing(true);
             try {
               // Llamar checkout
-              const checkoutResp = await axios.post(`${API_BASE}/api/carritos/${idCliente}/checkout`, null, { headers: { Authorization: `Bearer ${token}` } });
+              const checkoutResp = await api.post(`/api/carritos/${idCliente}/checkout`, null);
               const venta = checkoutResp.data;
 
               // Construir payload de envio
@@ -200,7 +199,7 @@ function Carrito({ carrito, eliminarDelCarrito, actualizarCantidad, shippingCost
                 comuna: comunaPayload
               };
 
-              await axios.post(`${API_BASE}/api/envios`, envioPayload, { headers: { Authorization: `Bearer ${token}` } });
+              await api.post('/api/envios', envioPayload);
 
               alert('✅ Compra confirmada y envío registrado.');
               // Limpiar carrito local llamando al eliminador por cada item

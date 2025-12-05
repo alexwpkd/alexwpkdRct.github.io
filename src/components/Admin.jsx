@@ -1,6 +1,5 @@
 // src/components/Admin.jsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import api, { getAuthHeaders } from '../utils.js';
 import { useProductData } from './ProductData';
 import ScrollButton from './ScrollButton.jsx';
@@ -191,7 +190,7 @@ function Admin() {
             const headers = { 'Content-Type': 'application/json' };
             if (token) headers['Authorization'] = `Bearer ${token}`;
 
-            const resp = await axios.post(`${API_BASE}/api/productos`, dto, { headers });
+            const resp = await api.post('/api/productos', dto, { headers });
 
             const creado = resp.data;
 
@@ -218,7 +217,7 @@ function Admin() {
                     const headers2 = token2 ? { Authorization: `Bearer ${token2}` } : {};
                     const id = creado.idProducto ?? creado.id;
                     if (id) {
-                        const getResp = await axios.get(`${API_BASE}/api/productos/${id}`, { headers: headers2 });
+                        const getResp = await api.get(`/api/productos/${id}`, { headers: headers2 });
                         const pFull = getResp.data;
                         const resolvedImage = pFull.imagenUrl ?? pFull.imagen?.url ?? pFull.urlImagen ?? null;
                         if (resolvedImage) {
@@ -281,7 +280,7 @@ function Admin() {
                 estado: 'recibida',
                 fechaCompra: new Date().toISOString()
             };
-            const compraResp = await axios.post(`${API_BASE}/api/compras`, compraPayload, { headers });
+            const compraResp = await api.post('/api/compras', compraPayload, { headers });
             const compra = compraResp.data;
 
             // Para cada fila, crear detalle_compra y actualizar stock local
@@ -293,7 +292,7 @@ function Admin() {
                 // Obtener producto para precio actual
                 let producto = null;
                 try {
-                    const prodResp = await axios.get(`${API_BASE}/api/productos/${productoId}`, { headers });
+                    const prodResp = await api.get(`/api/productos/${productoId}`, { headers });
                     producto = prodResp.data;
                 } catch {
                     // fallback: buscar en inventory local
@@ -312,14 +311,14 @@ function Admin() {
                     producto: { idProducto: productoId }
                 };
 
-                await axios.post(`${API_BASE}/api/detalle-compra`, detallePayload, { headers });
+                await api.post('/api/detalle-compra', detallePayload, { headers });
 
                 // Actualizar stock del producto en backend (si existe endpoint PUT /api/productos/{id})
                 try {
                     // Obtener producto original (si no lo tenemos)
                     let prodForUpdate = producto;
                     if (!prodForUpdate) {
-                        const pResp = await axios.get(`${API_BASE}/api/productos/${productoId}`, { headers });
+                        const pResp = await api.get(`/api/productos/${productoId}`, { headers });
                         prodForUpdate = pResp.data;
                     }
                     if (prodForUpdate) {
@@ -339,7 +338,7 @@ function Admin() {
 
                         const token3 = localStorage.getItem('token');
                         const headers3 = token3 ? { Authorization: `Bearer ${token3}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
-                        await axios.put(`${API_BASE}/api/productos/${productoId}`, updatedDto, { headers: headers3 });
+                        await api.put(`/api/productos/${productoId}`, updatedDto, { headers: headers3 });
 
                         // Actualizar inventario local
                         setInventory(prev => prev.map(p => p.id === productoId ? ({ ...p, stock: (p.stock || 0) + cantidad, lastRestock: new Date().toISOString().split('T')[0], status: ((p.stock || 0) + cantidad) === 0 ? 'Agotado' : (((p.stock || 0) + cantidad) < 3 ? 'Stock crítico' : (((p.stock || 0) + cantidad) < 5 ? 'Stock bajo' : 'En stock')) }) : p));
@@ -352,7 +351,7 @@ function Admin() {
 
             // Actualizar totalCompra si backend no lo calcula
             try {
-                await axios.put(`${API_BASE}/api/compras/${compra.idCompra ?? compra.id}`, { totalCompra }, { headers });
+                await api.put(`/api/compras/${compra.idCompra ?? compra.id}`, { totalCompra }, { headers });
             } catch { /* no crítico */ }
 
             alert('✅ Compra registrada y stock actualizado.');
@@ -381,7 +380,7 @@ function Admin() {
                 try {
                     const token = localStorage.getItem('token');
                     const headers = token ? { Authorization: `Bearer ${token}` } : {};
-                    const resp = await axios.get(`${API_BASE}/api/empleados`, { headers });
+                    const resp = await api.get('/api/empleados', { headers });
                     if (!mounted) return;
                     setEmployees(resp.data || []);
                 } catch (err) {
@@ -419,7 +418,7 @@ function Admin() {
                     telefono: newEmployee.telefono,
                     password: newEmployee.password
                 };
-                const resp = await axios.post(`${API_BASE}/api/empleados`, dto, { headers });
+                const resp = await api.post('/api/empleados', dto, { headers });
                 const creado = resp.data;
                 setEmployees(prev => [creado, ...prev]);
                 setNewEmployee({ nombre: '', correo: '', rut: '', cargo: '', telefono: '', password: '' });
