@@ -1,5 +1,6 @@
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { logout } from '../utils/auth.js'
 import images from '../assets/images/index.js'
 
 export default function Header() {
@@ -52,19 +53,11 @@ export default function Header() {
   }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('userRole')
-    localStorage.removeItem('userEmail')
-    localStorage.removeItem('userName')
-    localStorage.removeItem('idCliente')
-    setLoggedIn(false)
-    setUserEmail('')
-    setUserName('')
-    navigate('/')
-    try { 
-      try { sessionStorage.removeItem('authenticated') } catch(e) {}
-      window.dispatchEvent(new Event('authChanged')) 
-    } catch(e) {}
+    logout();
+    setLoggedIn(false);
+    setUserEmail('');
+    setUserName('');
+    navigate('/');
   }
 
   return (

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import api, { getAuthHeaders } from '../utils.js';
 import { showAxiosError } from '../utils/showAxiosError.js';
 import { useProductData } from './ProductData';
+import AdminManager from './AdminManager.jsx';
 import ScrollButton from './ScrollButton.jsx';
 import images from '../assets/images/index.js';
 import { resolveImage } from '../utils.js';
@@ -548,6 +549,15 @@ function Admin() {
                                     Personal
                                 </button>
                             </li>
+                            <li className="nav-item">
+                                <button 
+                                    className={`nav-link ${activeTab === 'manager' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('manager')}
+                                >
+                                    <i className="fas fa-cogs me-2"></i>
+                                    Gestión
+                                </button>
+                            </li>
                             {/* Reportes tab removed */}
                         </ul>
                     </div>
@@ -737,6 +747,10 @@ function Admin() {
                             </div>
                         </div>
                     </div>
+                )}
+
+                {activeTab === 'manager' && (
+                    <AdminManager />
                 )}
             </div>
 

@@ -1,5 +1,6 @@
-// src/App.jsx
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
 import Home from './components/Home.jsx';
@@ -11,189 +12,260 @@ import News from './components/News.jsx';
 import Admin from './components/Admin.jsx';
 import Product from './components/Product.jsx';
 import Carrito from './components/Carrito.jsx';
-import React, { useState, useEffect } from 'react';
+
 import api from './utils.js';
-import "./styles/shots.css";
+import { getAuthInfo } from './utils/auth.js';
+import './styles/shots.css';
 
 export default function App() {
   const [carrito, setCarrito] = useState([]);
   const SHIPPING_CONSTANT = 15000;
   const [shippingCost] = useState(SHIPPING_CONSTANT);
 
-  // Si el usuario está autenticado y es cliente, sincronizamos con backend
+  // Cargar carrito del backend SOLO si está logueado
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const idCliente = localStorage.getItem('idCliente');
-
-    const loadBackendCart = async () => {
-      if (!token || !idCliente) return;
-      try {
-        // Obtener carrito por cliente
-        const carritoResp = await api.get(`/api/carritos/cliente/${idCliente}`);
-        const carritoData = carritoResp.data;
-        if (!carritoData || !carritoData.idCarrito) return;
-
-        // Obtener detalle del carrito
-        const detallesResp = await api.get(`/api/detalle-carrito/carrito/${carritoData.idCarrito}`);
-        const detalles = detallesResp.data || [];
-
-        // Mapear a la forma que usan los componentes: id = producto.idProducto, cantidad, price, stock, name, detalleId
-        const mapped = detalles.map(d => ({
-          id: d.producto?.idProducto ?? d.producto?.id,
-          cantidad: d.cantidad,
-          cantidadKey: d.idCarritoDetalle,
-          price: d.producto?.precio ?? d.producto?.price ?? 0,
-          stock: d.producto?.stock ?? 0,
-          name: d.producto?.nombre ?? d.producto?.name ?? '',
-          productoObj: d.producto
-        }));
-
-        setCarrito(mapped);
-      } catch (err) {
-        // Si el backend responde 404 significa que el cliente aún no tiene carrito: tratar como vacío
-        const status = err?.response?.status;
-        if (status === 404) {
-          // carrito vacío
-          setCarrito([]);
-          return;
-        }
-        console.warn('No se pudo cargar carrito desde backend:', err);
-      }
-    };
-
     loadBackendCart();
   }, []);
 
+  async function loadBackendCart() {
+    const { isLoggedIn, idCliente } = getAuthInfo();
+
+    if (!isLoggedIn || !idCliente) {
+      console.log('[Carrito] Usuario invitado: se usa carrito solo en memoria');
+      return;
+    }
+
+    try {
+      console.log('[Carrito] Cargando carrito para cliente:', idCliente);
+      const carritoResp = await api.get(`/api/carritos/cliente/${idCliente}`);
+      const carritoData = carritoResp.data;
+      console.log('[Carrito] Carrito backend obtenido:', carritoData);
+
+      if (!carritoData || !carritoData.idCarrito) return;
+
+      const detallesResp = await api.get(
+        `/api/detalle-carrito/carrito/${carritoData.idCarrito}`
+      );
+      const detalles = detallesResp.data || [];
+
+      const mapped = detalles.map(d => ({
+        id: d.producto?.idProducto ?? d.producto?.id,
+        cantidad: d.cantidad,
+        cantidadKey: d.idCarritoDetalle,
+        price: d.producto?.precio ?? d.producto?.price ?? 0,
+        stock: d.producto?.stock ?? 0,
+        name: d.producto?.nombre ?? d.producto?.name ?? '',
+        productoObj: d.producto
+      }));
+
+      setCarrito(mapped);
+    } catch (err) {
+      const status = err?.response?.status;
+      if (status === 404) {
+        console.log('[Carrito] Cliente no tiene carrito aún, carrito vacío');
+        setCarrito([]);
+        return;
+      }
+      console.warn(
+        '[Carrito] No se pudo cargar carrito desde backend:',
+        err?.response?.data || err.message
+      );
+    }
+  }
+
+  // ✅ Invitado: solo front
+  // ✅ Logueado: front + backend
   async function agregarAlCarrito(producto, cantidad = 1) {
-    const token = localStorage.getItem('token');
-    const idCliente = localStorage.getItem('idCliente');
-    
+    const { isLoggedIn, idCliente } = getAuthInfo();
 
-    // Si hay sesión de cliente, intentar backend
-    if (token && idCliente) {
-      try {
-        const resp = await api.post(`/api/carritos/${idCliente}/agregar`, null, {
-          params: { productoId: producto.id ?? producto.idProducto, cantidad }
-        });
+    // Actualizar carrito local SIEMPRE
+    setCarrito(prev => {
+      const prodId = producto.id ?? producto.idProducto;
+      const existe = prev.find(item => item.id === prodId);
+      if (existe) {
+        return prev.map(item =>
+          item.id === prodId
+            ? { ...item, cantidad: item.cantidad + cantidad }
+            : item
+        );
+      }
+      return [...prev, { ...producto, id: prodId, cantidad }];
+    });
 
-        const detalle = resp.data; // DetalleCarrito creado
-        // Agregar/actualizar en estado local usando el detalle
-        setCarrito(prev => {
-          const prodId = detalle.producto?.idProducto ?? detalle.producto?.id ?? producto.id;
-          const existe = prev.find(item => item.id === prodId);
-          if (existe) {
-            return prev.map(item => item.id === prodId ? { ...item, cantidad: detalle.cantidad, cantidadKey: detalle.idCarritoDetalle } : item);
-          }
-          return [...prev, {
+    // Invitado → NO backend
+    if (!isLoggedIn || !idCliente) {
+      console.log('[Carrito] Usuario invitado: carrito guardado solo en memoria');
+      return;
+    }
+
+    // Logueado → sincronizar backend
+    try {
+      console.log('[Carrito] Sincronizando con backend para cliente:', idCliente);
+      const resp = await api.post(`/api/carritos/${idCliente}/agregar`, null, {
+        params: { productoId: producto.id ?? producto.idProducto, cantidad }
+      });
+
+      const detalle = resp.data;
+
+      setCarrito(prev => {
+        const prodId = detalle.producto?.idProducto ?? detalle.producto?.id ?? producto.id;
+        const existe = prev.find(item => item.id === prodId);
+        if (existe) {
+          return prev.map(item =>
+            item.id === prodId
+              ? {
+                  ...item,
+                  cantidad: detalle.cantidad,
+                  cantidadKey: detalle.idCarritoDetalle
+                }
+              : item
+          );
+        }
+        return [
+          ...prev,
+          {
             id: prodId,
             cantidad: detalle.cantidad,
             cantidadKey: detalle.idCarritoDetalle,
-            price: detalle.producto?.precio ?? detalle.producto?.price ?? producto.precio ?? producto.price ?? 0,
-            stock: detalle.producto?.stock ?? producto.stock ?? producto.enStock ?? 1,
-            name: detalle.producto?.nombre ?? producto.nombre ?? producto.name,
+            price:
+              detalle.producto?.precio ??
+              detalle.producto?.price ??
+              producto.precio ??
+              producto.price ??
+              0,
+            stock:
+              detalle.producto?.stock ??
+              producto.stock ??
+              producto.enStock ??
+              1,
+            name:
+              detalle.producto?.nombre ??
+              producto.nombre ??
+              producto.name,
             productoObj: detalle.producto
-          }];
-        });
-        return;
-      } catch (err) {
-        console.warn('No se pudo agregar al carrito en backend, usando fallback local', err);
-      }
+          }
+        ];
+      });
+    } catch (error) {
+      console.warn(
+        '[Carrito] No se pudo sincronizar con backend, pero el carrito local sigue funcionando.',
+        error
+      );
     }
-
-    // Fallback local (sin backend)
-    setCarrito(prev => {
-      const existe = prev.find(item => item.id === producto.id);
-      if (existe) {
-        const nuevaCantidad = Math.min(existe.cantidad + cantidad, producto.stock || producto.enStock || 1);
-        return prev.map(item =>
-          item.id === producto.id ? { ...item, cantidad: nuevaCantidad } : item
-        );
-      }
-      const next = [...prev, { ...producto, cantidad: Math.min(cantidad, producto.stock || producto.enStock || 1) }];
-      // shippingCost is a fixed constant (SHIPPING_CONSTANT)
-      return next;
-    });
   }
 
   async function eliminarDelCarrito(id) {
-    const token = localStorage.getItem('token');
-    const idCliente = localStorage.getItem('idCliente');
-    
+    const { isLoggedIn, idCliente } = getAuthInfo();
 
-    // Si hay sesión, buscar detalleId en el carrito y llamar al backend
-    if (token && idCliente) {
-      try {
-        const item = carrito.find(i => i.id === id);
-        const detalleId = item?.cantidadKey;
-        if (detalleId) {
-          await api.delete(`/api/carritos/${idCliente}/eliminar-item/${detalleId}`);
-        }
-        // actualizar estado local
-        setCarrito(prev => prev.filter(item => item.id !== id));
-        // shippingCost is constant; no need to clear it when carrito queda vacío
-        setTimeout(() => { setCarrito(prev => prev); }, 50);
-        return;
-      } catch (err) {
-        console.warn('No se pudo eliminar item en backend, usando fallback local', err);
-      }
+    // Local
+    setCarrito(prev => prev.filter(item => item.id !== id));
+
+    // Invitado → solo local
+    if (!isLoggedIn || !idCliente) {
+      console.log('[Carrito] Usuario invitado: item eliminado del carrito local');
+      return;
     }
 
-    // Fallback local
-    setCarrito(prev => {
-      const next = prev.filter(item => item.id !== id);
-      // shippingCost is constant; do not clear
-      return next;
-    });
+    // Logueado → backend
+    try {
+      const item = carrito.find(i => i.id === id);
+      const detalleId = item?.cantidadKey;
+      if (detalleId) {
+        await api.delete(`/api/carritos/${idCliente}/eliminar-item/${detalleId}`);
+        console.log('[Carrito] Item eliminado del backend');
+      }
+    } catch (err) {
+      console.warn(
+        '[Carrito] No se pudo sincronizar eliminación con backend:',
+        err?.response?.data || err.message
+      );
+    }
   }
 
   async function actualizarCantidad(id, cantidad) {
-    const token = localStorage.getItem('token');
-    const idCliente = localStorage.getItem('idCliente');
-    
+    const { isLoggedIn, idCliente } = getAuthInfo();
 
-    const bounded = Math.max(1, Math.min(cantidad, (carrito.find(i => i.id === id)?.stock || 1)));
+    const item = carrito.find(i => i.id === id);
+    const bounded = Math.max(1, Math.min(cantidad, item?.stock || 1));
 
-    if (token && idCliente) {
-      try {
-        const item = carrito.find(i => i.id === id);
-        const detalleId = item?.cantidadKey;
-        if (detalleId) {
-          const resp = await api.put(`/api/carritos/${idCliente}/actualizar/${detalleId}`, null, {
-            params: { cantidad: bounded }
-          });
-          const actualizado = resp.data;
-          // actualizar estado local
-          setCarrito(prev => prev.map(it => it.id === id ? { ...it, cantidad: actualizado.cantidad } : it));
-          return;
-        }
-      } catch (err) {
-        console.warn('No se pudo actualizar cantidad en backend, usando fallback local', err);
-      }
+    // Local
+    setCarrito(prev =>
+      prev.map(it => (it.id === id ? { ...it, cantidad: bounded } : it))
+    );
+
+    // Invitado → solo local
+    if (!isLoggedIn || !idCliente) {
+      console.log('[Carrito] Usuario invitado: cantidad actualizada solo en memoria');
+      return;
     }
 
-    // Fallback local
-    setCarrito(prev => prev.map(item =>
-      item.id === id ? { ...item, cantidad: bounded } : item
-    ));
+    // Logueado → backend
+    try {
+      const detalleId = item?.cantidadKey;
+      if (detalleId) {
+        await api.put(`/api/carritos/${idCliente}/actualizar/${detalleId}`, null, {
+          params: { cantidad: bounded }
+        });
+        console.log('[Carrito] Cantidad actualizada en backend');
+      }
+    } catch (err) {
+      console.warn(
+        '[Carrito] No se pudo sincronizar actualización con backend:',
+        err?.response?.data || err.message
+      );
+    }
   }
 
   return (
     <div className="app">
       <Header />
       <Routes>
-        <Route path="/" element={<Home/>} />
-        <Route path="/about" element={<About/>} />
-        <Route path="/shop" element={<Shop agregarAlCarrito={agregarAlCarrito} carrito={carrito} />} />
-        <Route path="/contact" element={<Contact/>} />
-        <Route path="/news" element={<News/>} />
-        <Route path="/login" element={<Login/>} />
-        <Route path="/admin" element={<Admin/>} />
-  <Route path="/product/:id" element={<Product agregarAlCarrito={agregarAlCarrito} />} />
-        <Route path="/carrito" element={<Carrito carrito={carrito} agregarAlCarrito={agregarAlCarrito} eliminarDelCarrito={eliminarDelCarrito} actualizarCantidad={actualizarCantidad} shippingCost={shippingCost} />} />
-        <Route path="/cart" element={<Carrito carrito={carrito} agregarAlCarrito={agregarAlCarrito} eliminarDelCarrito={eliminarDelCarrito} actualizarCantidad={actualizarCantidad} shippingCost={shippingCost} />} />
-        <Route path="*" element={<div className="container text-center py-5"><h1>404 - Página no encontrada</h1></div>} />
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route
+          path="/shop"
+          element={<Shop agregarAlCarrito={agregarAlCarrito} carrito={carrito} />}
+        />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/news" element={<News />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route
+          path="/product/:id"
+          element={<Product agregarAlCarrito={agregarAlCarrito} />}
+        />
+        <Route
+          path="/carrito"
+          element={
+            <Carrito
+              carrito={carrito}
+              eliminarDelCarrito={eliminarDelCarrito}
+              actualizarCantidad={actualizarCantidad}
+              shippingCost={shippingCost}
+            />
+          }
+        />
+        <Route
+          path="/cart"
+          element={
+            <Carrito
+              carrito={carrito}
+              eliminarDelCarrito={eliminarDelCarrito}
+              actualizarCantidad={actualizarCantidad}
+              shippingCost={shippingCost}
+            />
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <div className="container text-center py-5">
+              <h1>404 - Página no encontrada</h1>
+            </div>
+          }
+        />
       </Routes>
       <Footer />
     </div>
-  )
+  );
 }

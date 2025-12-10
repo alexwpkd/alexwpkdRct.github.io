@@ -43,23 +43,44 @@ function Login() {
                 const resp = await api.post('/auth/login', payload);
                 const data = resp.data;
 
+                console.log('Respuesta login backend:', data);
+
                 // ⬇️ unificamos la key: SIEMPRE 'token'
                 localStorage.setItem('token', data.token || '');
-                if (data.rol) localStorage.setItem('userRole', data.rol.toLowerCase());
+                if (data.rol) {
+                    localStorage.setItem('userRole', data.rol.toLowerCase());
+                    localStorage.setItem('rol', data.rol); // Mantener ambos formatos
+                }
                 if (data.correo) localStorage.setItem('userEmail', data.correo);
                 // guardar nombre si el backend lo retorna (nombre, name, nombreCompleto)
                 const userName = data.nombre || data.name || data.nombreCompleto || data.correo || '';
                 if (userName) localStorage.setItem('userName', userName);
-                if (data.idCliente) localStorage.setItem('idCliente', String(data.idCliente));
+
+                // 🧍 Guardar idCliente SOLO si es CLIENTE
+                if (data.rol && data.rol.toUpperCase() === 'CLIENTE') {
+                    const idForClient = data.idCliente || data.id || data.idUsuario;
+                    if (idForClient) {
+                        localStorage.setItem('idCliente', String(idForClient));
+                    }
+                } else {
+                    // Si es ADMIN o EMPLEADO, nos aseguramos de no dejar un idCliente viejo
+                    localStorage.removeItem('idCliente');
+                }
 
                 if (data.rol && data.rol.toUpperCase() === 'ADMIN') {
                     setLoginStatus('success-admin');
+                    try { sessionStorage.setItem('authenticated', 'true'); } catch(e) {}
+                    try { window.dispatchEvent(new Event('authChanged')); } catch(e) {}
                     navigate('/admin');
                 } else if (data.rol && data.rol.toUpperCase() === 'EMPLEADO') {
                     setLoginStatus('success-admin');
+                    try { sessionStorage.setItem('authenticated', 'true'); } catch(e) {}
+                    try { window.dispatchEvent(new Event('authChanged')); } catch(e) {}
                     navigate('/admin');
                 } else {
                     setLoginStatus('success-user');
+                    try { sessionStorage.setItem('authenticated', 'true'); } catch(e) {}
+                    try { window.dispatchEvent(new Event('authChanged')); } catch(e) {}
                     setTimeout(() => navigate('/'), 1200);
                 }
 
