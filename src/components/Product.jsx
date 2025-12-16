@@ -5,6 +5,7 @@ import useProductData from './ProductData.jsx';
 import { resolveImage } from '../utils.js';
 import Hero from './Hero.jsx';
 import api from '../utils.js';
+import { emitToast } from '../utils/toast.js';
 
 function Product({ agregarAlCarrito }) {
     const { id } = useParams();
@@ -76,7 +77,7 @@ function Product({ agregarAlCarrito }) {
                 precio: product.priceNumber,
                 stock: product.stock,
             }, quantity);
-            alert(`${product.name} agregado al carrito`);
+            emitToast(`${product.name} agregado al carrito`, 'success');
         }
     };
 

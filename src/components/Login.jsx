@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import ScrollButton from './ScrollButton.jsx';
 // ⬇️ en vez de axios directo, usamos tu cliente API unificado
 import api from '../utils.js';
+import { emitToast } from '../utils/toast.js';
 
 function Login() {
     const [formData, setFormData] = useState({
@@ -25,6 +26,15 @@ function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+
+        // Evitar login de otra cuenta cuando ya hay sesión activa
+        const existingRole = (localStorage.getItem('userRole') || '').toLowerCase();
+        const hasToken = !!localStorage.getItem('token');
+        if (hasToken && existingRole === 'cliente') {
+            emitToast('Ya tienes sesión como cliente. Cierra sesión antes de ingresar con otra cuenta.', 'warning');
+            setLoading(false);
+            return;
+        }
         
         if (!formData.email || !formData.password) {
             setLoginStatus('Por favor completa todos los campos');
@@ -90,13 +100,16 @@ function Login() {
                     if (err.response.status === 401) {
                         console.warn('Backend: credenciales incorrectas');
                         setLoginStatus('Correo o contraseña incorrectos');
+                        emitToast('Correo o contraseña incorrectos', 'error');
                     } else {
                         console.error('Backend error:', err.response.status, err.response.data);
                         setLoginStatus('Error del servidor. Intenta nuevamente.');
+                        emitToast('Error del servidor. Intenta nuevamente.', 'error');
                     }
                 } else {
                     console.warn('No se pudo conectar al backend', err);
                     setLoginStatus('No se pudo conectar al servidor.');
+                    emitToast('No se pudo conectar al servidor.', 'error');
                 }
             }
 

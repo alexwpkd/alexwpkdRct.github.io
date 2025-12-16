@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import api, { getAuthHeaders } from '../utils.js';
 import { showAxiosError } from '../utils/showAxiosError.js';
+import { emitToast } from '../utils/toast.js';
 import { useProductData } from './ProductData';
 import AdminManager from './AdminManager.jsx';
 import ScrollButton from './ScrollButton.jsx';
@@ -55,7 +56,7 @@ function Admin() {
     // Reponer stock: actualiza el estado local y la fecha de última reposición
     const handleAddStock = (productId, quantity) => {
         if (!quantity || quantity <= 0) {
-            alert('Por favor ingresa una cantidad válida');
+            emitToast('Por favor ingresa una cantidad válida', 'warning');
             return;
         }
         const today = new Date().toISOString().split('T')[0];
@@ -70,7 +71,7 @@ function Admin() {
                 : product
         ));
         setNewStock(prev => ({ ...prev, [productId]: '' }));
-        alert(`✅ Stock actualizado: +${quantity} unidades agregadas al producto ID: ${productId}`);
+        emitToast(`Stock actualizado: +${quantity} unidades (ID ${productId})`, 'success');
     };
 
     // Eliminar funciones de staff, ventas y reportes
@@ -91,7 +92,7 @@ function Admin() {
             }))
         };
         console.log('📊 Reporte de Inventario:', report);
-        alert('📊 Reporte generado en la consola del navegador');
+        emitToast('Reporte generado (ver consola)', 'info');
         return report;
     };
 
@@ -128,6 +129,36 @@ function Admin() {
         return () => { mounted = false; };
     }, []);
 
+    // Recargar inventario cuando vuelves al tab de inventario
+    useEffect(() => {
+        if (activeTab === 'inventory') {
+            const loadInventory = async () => {
+                setLoadingInventory(true);
+                try {
+                    const resp = await api.get('/api/productos');
+                    const list = resp.data || [];
+                    const mapped = list.map(p => ({
+                        id: p.idProducto ?? p.id,
+                        name: p.nombre ?? p.name,
+                        category: p.categoria ?? p.category,
+                        price: p.precio ?? p.price ?? 0,
+                        stock: p.stock ?? p.stockDisponible ?? 0,
+                        status: (p.stock ?? 0) === 0 ? 'Agotado' : ((p.stock ?? 0) < 3 ? 'Stock crítico' : ((p.stock ?? 0) < 5 ? 'Stock bajo' : 'En stock')),
+                        lastRestock: p.lastRestock ?? null,
+                        imageUrl: p.imagenUrl ?? p.imagen?.url ?? p.urlImagen ?? null,
+                        imagenClave: p.imagenClave ?? null
+                    }));
+                    setInventory(mapped);
+                } catch (err) {
+                    console.warn('No se pudo recargar inventario:', err);
+                } finally {
+                    setLoadingInventory(false);
+                }
+            };
+            loadInventory();
+        }
+    }, [activeTab]);
+
     // Asegurar que la página actual esté dentro del rango cuando cambie el inventario
     useEffect(() => {
         setPage(p => Math.max(1, Math.min(p, totalPages)));
@@ -150,7 +181,20 @@ function Admin() {
         e.preventDefault();
         // Validación mínima
         if (!newProduct.nombre || !newProduct.precio || !newProduct.sku || !newProduct.stock || !newProduct.categoria || !newProduct.subcategoria || !newProduct.descripcion) {
-            alert('Por favor completa todos los campos del producto');
+            emitToast('Por favor completa todos los campos del producto', 'warning');
+            return;
+        }
+        
+        const parsedPrice = parseInt(newProduct.precio, 10);
+        const parsedStock = parseInt(newProduct.stock, 10);
+        
+        if (parsedPrice <= 0) {
+            emitToast('El precio debe ser mayor a 0', 'warning');
+            return;
+        }
+        
+        if (parsedStock <= 0) {
+            emitToast('El stock debe ser mayor a 0', 'warning');
             return;
         }
 
@@ -159,12 +203,10 @@ function Admin() {
         try {
             const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
 
-            const parsedStock = parseInt(newProduct.stock, 10) || 0;
-
             // Validación: imagenUrl es obligatoria según DTO del backend
             const urlValue = (newProduct.imagenUrl || '').trim();
             if (!urlValue) {
-                alert('La URL de la imagen es obligatoria. Puede ser absoluta (https://...) o relativa (p. ej. products/product-img-1)');
+                emitToast('La URL de la imagen es obligatoria', 'warning');
                 setCreating(false);
                 return;
             }
@@ -172,13 +214,13 @@ function Admin() {
             const looksAbsolute = /^https?:\/\//i.test(urlValue);
             const looksRelative = urlValue.includes('/');
             if (!looksAbsolute && !looksRelative) {
-                alert('La URL debe ser absoluta (https://...) o una ruta relativa (contiene "/").');
+                emitToast('La URL debe ser absoluta o una ruta relativa', 'warning');
                 setCreating(false);
                 return;
             }
             const dto = {
                 nombre: newProduct.nombre,
-                precio: parseInt(newProduct.precio, 10),
+                precio: parsedPrice,
                 sku: newProduct.sku,
                 stock: parsedStock,
                 categoria: newProduct.categoria,
@@ -235,11 +277,11 @@ function Admin() {
             // Reset form
             setNewProduct({ nombre: '', precio: '', sku: '', stock: '', categoria: '', subcategoria: '', descripcion: '', imagenUrl: '' });
 
-            alert('✅ Producto creado correctamente');
+            emitToast('Producto creado correctamente', 'success');
         } catch (err) {
             console.error('Error creando producto:', err);
             const serverMsg = err?.response?.data || err?.response?.statusText || err?.message;
-            alert('Error al crear producto: ' + serverMsg);
+            emitToast('Error al crear producto: ' + serverMsg, 'error');
         } finally {
             setCreating(false);
         }
@@ -264,7 +306,7 @@ function Admin() {
     const handleCreatePurchase = async (e) => {
         e.preventDefault();
         if (!purchaseRows.length) {
-            alert('Agrega al menos un item a la compra');
+            emitToast('Agrega al menos un item a la compra', 'warning');
             return;
         }
         // Calcular totalCompra
@@ -356,12 +398,12 @@ function Admin() {
                 await api.put(`/api/compras/${compra.idCompra ?? compra.id}`, { totalCompra }, { headers });
             } catch { /* no crítico */ }
 
-            alert('✅ Compra registrada y stock actualizado.');
+            emitToast('Compra registrada y stock actualizado', 'success');
             setPurchaseRows([{ productoId: inventory[0]?.id ?? null, cantidad: 1 }]);
         } catch (err) {
             console.error('Error creando compra:', err);
             const serverMsg = err?.response?.data || err?.response?.statusText || err?.message || String(err);
-            alert('Error al registrar la compra: ' + serverMsg);
+            emitToast('Error al registrar la compra: ' + serverMsg, 'error');
         } finally {
             setPurchasing(false);
         }
@@ -403,7 +445,7 @@ function Admin() {
         const handleCreateEmployee = async (e) => {
             e.preventDefault();
             if (!newEmployee.nombre || !newEmployee.correo) {
-                alert('Por favor completa al menos nombre y correo');
+                emitToast('Por favor completa al menos nombre y correo', 'warning');
                 return;
             }
             setCreatingEmployee(true);
@@ -424,7 +466,7 @@ function Admin() {
                 const creado = resp.data;
                 setEmployees(prev => [creado, ...prev]);
                 setNewEmployee({ nombre: '', apellido: '', correo: '', rut: '', password: '' });
-                alert('✅ Empleado creado correctamente');
+                emitToast('Empleado creado correctamente', 'success');
             } catch (err) {
                 showAxiosError('Error creando empleado', err);
             } finally {
@@ -455,6 +497,9 @@ function Admin() {
                         <div className="col-md-6 mb-2">
                             <input type="password" name="password" className="form-control" placeholder="Contraseña (temporal)" value={newEmployee.password} onChange={handleNewEmployeeChange} />
                         </div>
+                        <div className="col-md-6 mb-2">
+                            <input type="email" className="form-control" placeholder="Administrador" value={localStorage.getItem('userEmail') || ''} readOnly />
+                        </div>
                     </div>
                     <div className="row mt-2">
                         <div className="col-12 text-end">
@@ -463,14 +508,14 @@ function Admin() {
                     </div>
                 </form>
 
-                <div className="card">
-                    <div className="card-header">Listado de Empleados</div>
+                <div className="card bg-dark border-light text-white">
+                    <div className="card-header bg-primary text-white">Listado de Empleados</div>
                     <div className="card-body">
                         {loadingEmployees ? (
                             <div>Cargando empleados...</div>
                         ) : (
                             <div className="table-responsive">
-                                <table className="table table-sm">
+                                <table className="table table-sm text-white">
                                     <thead>
                                         <tr>
                                             <th>Nombre</th>
@@ -481,13 +526,13 @@ function Admin() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {employees.map(emp => (
+                                            {employees.map(emp => (
                                             <tr key={emp.id || emp.idEmpleado || emp.correo}>
                                                 <td>{emp.nombre ?? emp.name ?? '-'}</td>
                                                 <td>{emp.apellido ?? '-'}</td>
                                                 <td>{emp.correo ?? emp.email ?? '-'}</td>
                                                 <td>{emp.rut ?? '-'}</td>
-                                                <td>{(emp.administrador === true || emp.administrador === false) ? (emp.administrador ? 'Sí' : 'No') : (emp.administrador ?? '-')}</td>
+                                                    <td>{localStorage.getItem('userEmail') || '-'}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -590,8 +635,8 @@ function Admin() {
                                     <div className={`card bg-${stat.color} text-white`} style={{ minHeight: '150px', display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
                                         <div className="card-body text-center d-flex flex-column justify-content-center align-items-center" style={{ height: '100%' }}>
                                             <i className={`fas ${stat.icon} fa-2x mb-2`}></i>
-                                            <h5>{stat.title}</h5>
-                                            <h3>{stat.value}</h3>
+                                            <h5 className="text-white">{stat.title}</h5>
+                                            <h3 className="text-white">{stat.value}</h3>
                                         </div>
                                     </div>
                                 </div>
@@ -601,10 +646,10 @@ function Admin() {
                         {/* Formulario para crear producto (mantener estética con tarjetas y botones existentes) */}
                         <div className="row mb-4">
                             <div className="col-12">
-                                <div className="card">
+                                <div className="card bg-dark border-light">
                                     <div className="card-header d-flex justify-content-between align-items-center">
-                                        <strong>Agregar Producto</strong>
-                                        <small className="text-muted">Añade un producto nuevo al catálogo</small>
+                                        <strong className="text-white-custom">Agregar Producto</strong>
+                                        <small className="text-white-50">Añade un producto nuevo al catálogo</small>
                                     </div>
                                     <div className="card-body">
                                         <form onSubmit={handleCreateProduct}>
@@ -613,7 +658,7 @@ function Admin() {
                                                     <input type="text" name="nombre" className="form-control" placeholder="Nombre" value={newProduct.nombre} onChange={handleNewProductChange} />
                                                 </div>
                                                 <div className="col-md-3 mb-2">
-                                                    <input type="number" name="precio" className="form-control" placeholder="Precio (CLP)" value={newProduct.precio} onChange={handleNewProductChange} />
+                                                    <input type="number" name="precio" className="form-control" placeholder="Precio (CLP)" value={newProduct.precio} onChange={handleNewProductChange} min="1" step="1" />
                                                 </div>
                                                 <div className="col-md-3 mb-2">
                                                     <input type="text" name="sku" className="form-control" placeholder="SKU" value={newProduct.sku} onChange={handleNewProductChange} />
@@ -622,7 +667,7 @@ function Admin() {
 
                                             <div className="row mt-2">
                                                 <div className="col-md-3 mb-2">
-                                                    <input type="number" name="stock" className="form-control" placeholder="Stock" value={newProduct.stock} onChange={handleNewProductChange} />
+                                                    <input type="number" name="stock" className="form-control" placeholder="Stock" value={newProduct.stock} onChange={handleNewProductChange} min="1" step="1" />
                                                 </div>
                                                 <div className="col-md-3 mb-2">
                                                     <input type="text" name="categoria" className="form-control" placeholder="Categoría" value={newProduct.categoria} onChange={handleNewProductChange} />
@@ -654,7 +699,7 @@ function Admin() {
                             </div>
                         </div>
 
-                        <div className="card">
+                        <div className="card bg-dark border-light text-white">
                             <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                                 <span>
                                     <i className="fas fa-boxes me-2"></i>
@@ -691,22 +736,22 @@ function Admin() {
                                                             return <div style={{width: '64px', height: '64px', background:'#eee', display:'flex', alignItems:'center', justifyContent:'center', color:'#666'}}>—</div>;
                                                         })()}
                                                     </td>
-                                                    <td style={{color: '#000'}}>{product.id}</td>
-                                                    <td><strong style={{color: '#000'}}>{product.name}</strong></td>
-                                                    <td style={{color: '#000'}}>{product.category}</td>
-                                                    <td style={{color: '#000'}}>${(product.price || 0).toLocaleString('es-CL')} CLP</td>
+                                                    <td className="text-white">{product.id}</td>
+                                                    <td><strong className="text-white">{product.name}</strong></td>
+                                                    <td className="text-white">{product.category}</td>
+                                                    <td className="text-white">${(product.price || 0).toLocaleString('es-CL')} CLP</td>
                                                     <td>
-                                                        <span className={`badge ${getStatusBadge(product.stock === 0 ? 'Agotado' : (product.stock < 3 ? 'Stock crítico' : (product.stock < 5 ? 'Stock bajo' : 'En stock')))}`}>
+                                                        <span className={`badge text-white ${getStatusBadge(product.stock === 0 ? 'Agotado' : (product.stock < 3 ? 'Stock crítico' : (product.stock < 5 ? 'Stock bajo' : 'En stock')))}`}>
                                                             {product.stock} unidades
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <span className={`badge ${getStatusBadge(product.stock === 0 ? 'Agotado' : (product.stock < 3 ? 'Stock crítico' : (product.stock < 5 ? 'Stock bajo' : 'En stock')))}`}>
+                                                        <span className={`badge text-white ${getStatusBadge(product.stock === 0 ? 'Agotado' : (product.stock < 3 ? 'Stock crítico' : (product.stock < 5 ? 'Stock bajo' : 'En stock')))}`}>
                                                             {product.stock === 0 ? 'Agotado' : (product.stock < 3 ? 'Stock crítico' : (product.stock < 5 ? 'Stock bajo' : 'En stock'))}
                                                         </span>
                                                     </td>
-                                                    <td style={{color: '#000'}}>-</td>
-                                                    <td style={{color: '#000'}}>{product.lastRestock ? product.lastRestock : '-'}</td>
+                                                    <td className="text-white">-</td>
+                                                    <td className="text-white">{product.lastRestock ? product.lastRestock : '-'}</td>
                                                     
                                                 </tr>
                                             ))}

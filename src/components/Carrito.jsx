@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils.js';
 import { getAuthInfo } from '../utils/auth.js';
+import { emitToast } from '../utils/toast.js';
 import Hero from './Hero.jsx';
 import ScrollButton from './ScrollButton.jsx';
 
@@ -255,7 +256,8 @@ function Carrito({ carrito, agregarAlCarrito, eliminarDelCarrito, actualizarCant
 
       await api.post('/api/envios', envioPayload);
 
-      setMensaje('✅ Compra realizada correctamente. ¡Gracias por tu pedido! Serás redirigido en 2 segundos.');
+      // Mostrar toast verde de éxito
+      emitToast('✅ Compra realizada correctamente. ¡Gracias por tu pedido!', 'success', 3000);
 
       // Limpiar carrito local
       carrito.forEach(item => eliminarDelCarrito(item.id));

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils.js';
 import { showAxiosError } from '../utils/showAxiosError.js';
+import { emitToast } from '../utils/toast.js';
 
 function AdminManager() {
   const [activeTab, setActiveTab] = useState('productos');
@@ -95,6 +96,22 @@ function AdminManager() {
   const handleSaveEdit = async () => {
     if (!editingId || !editData) return;
 
+    // Validar precio y stock para productos
+    if (activeTab === 'productos') {
+      const precio = parseInt(editData.precio, 10);
+      const stock = parseInt(editData.stock, 10);
+      
+      if (precio <= 0) {
+        emitToast('El precio debe ser mayor a 0', 'warning');
+        return;
+      }
+      
+      if (stock <= 0) {
+        emitToast('El stock debe ser mayor a 0', 'warning');
+        return;
+      }
+    }
+
     try {
       let endpoint = '';
       let payload = editData; // por defecto mandamos todo el objeto
@@ -123,7 +140,8 @@ function AdminManager() {
         }
         case 'pedidos': {
           endpoint = `/api/ventas/${editingId}`;
-          // Permitimos cambiar sólo estado y descuento,
+          // Permitimos cambiar sólo estado,
+          // descuento siempre es 0
           // pero enviamos el objeto completo para no perder otros campos
           payload = {
             ...editData,
@@ -141,7 +159,7 @@ function AdminManager() {
       }
 
       await api.put(endpoint, payload);
-      alert('✅ Actualizado correctamente');
+      emitToast('Actualizado correctamente', 'success');
       setEditingId(null);
       setEditData(null);
       loadData();
@@ -179,7 +197,7 @@ function AdminManager() {
       }
 
       await api.delete(endpoint);
-      alert('✅ Eliminado correctamente');
+      emitToast('Eliminado correctamente', 'success');
       loadData();
     } catch (err) {
       showAxiosError(`Error eliminando ${activeTab}`, err);
@@ -374,6 +392,8 @@ function AdminManager() {
                     onChange={(e) =>
                       handleEditField('precio', e.target.value)
                     }
+                    min="1"
+                    step="1"
                   />
                 </div>
                 <div className="col-md-3">
@@ -385,6 +405,8 @@ function AdminManager() {
                     onChange={(e) =>
                       handleEditField('stock', e.target.value)
                     }
+                    min="1"
+                    step="1"
                   />
                 </div>
                 <div className="col-md-4">
@@ -521,6 +543,15 @@ function AdminManager() {
                     onChange={(e) => handleEditField('rut', e.target.value)}
                   />
                 </div>
+                <div className="col-md-6">
+                  <label className="form-label text-white-custom">Administrador</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    value={localStorage.getItem('userEmail') || ''}
+                    readOnly
+                  />
+                </div>
               </div>
 
               <div className="mt-3 d-flex justify-content-end">
@@ -643,19 +674,6 @@ function AdminManager() {
                     <option value="pendiente">Pendiente</option>
                     <option value="anulada">Anulada</option>
                   </select>
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label text-white-custom">
-                    Descuento (CLP)
-                  </label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    value={editData.descuento ?? 0}
-                    onChange={(e) =>
-                      handleEditField('descuento', e.target.value)
-                    }
-                  />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label text-white-custom">

@@ -4,6 +4,7 @@ import images from '../assets/images/index.js';
 import ScrollButton from './ScrollButton';
 import api from '../utils.js';
 import { showAxiosError } from '../utils/showAxiosError.js';
+import { emitToast } from '../utils/toast.js';
 
 function Contact() {
     const [formData, setFormData] = useState({
@@ -199,12 +200,12 @@ function Contact() {
         // Validaciones básicas extra
         const emailOk = /.+@.+/.test(formData.email);
         if (!emailOk) {
-            alert('Correo inválido: debe incluir @');
+            emitToast('Correo inválido: debe incluir @', 'warning');
             return;
         }
 
         if (!formData.region || !formData.comuna) {
-            alert('Selecciona región y comuna');
+            emitToast('Selecciona región y comuna', 'warning');
             return;
         }
 
@@ -256,7 +257,7 @@ function Contact() {
                     setLoggedIn(true);
                     setLoggedEmail(data.correo || formData.email);
 
-                    alert('✅ Registro exitoso y sesión iniciada.');
+                    emitToast('✅ Registro exitoso y sesión iniciada', 'success');
 
                     // Limpiar formulario
                     setFormData({
@@ -274,11 +275,11 @@ function Contact() {
 
                 } catch (loginErr) {
                     console.warn('Registro OK pero no se pudo logear automáticamente', loginErr);
-                    alert('Registro creado. Por favor inicia sesión.');
+                    emitToast('Registro creado. Por favor inicia sesión.', 'info');
                     setTimeout(() => navigate('/login'), 1200);
                 }
             } else {
-                alert('No se pudo crear el usuario. Intenta nuevamente.');
+                emitToast('No se pudo crear el usuario. Intenta nuevamente.', 'error');
             }
 
         } catch (err) {

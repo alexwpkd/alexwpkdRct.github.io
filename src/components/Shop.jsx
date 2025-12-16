@@ -5,6 +5,7 @@ import Hero from './Hero.jsx';
 import ScrollButton from './ScrollButton.jsx';
 import '../assets/css/shop.css';
 import api, { getAuthHeaders } from '../utils.js';
+import { emitToast } from '../utils/toast.js';
 
 function Shop({ agregarAlCarrito }) {
     const [currentPage, setCurrentPage] = useState(1);
@@ -186,7 +187,7 @@ function Shop({ agregarAlCarrito }) {
                                                             precio: producto.precio,
                                                             stock: producto.stock || producto.enStock || 1
                                                         }, 1);
-                                                        alert(`${producto.nombre} agregado al carrito`);
+                                                        emitToast(`${producto.nombre} agregado al carrito`, 'success');
                                                     }
                                                 }}
                                                 disabled={!producto.enStock}

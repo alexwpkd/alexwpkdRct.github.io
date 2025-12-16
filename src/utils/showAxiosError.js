@@ -1,4 +1,6 @@
 // src/utils/showAxiosError.js
+import { emitToast } from './toast.js';
+
 export function showAxiosError(prefix, error) {
   console.error(prefix, error);
 
@@ -6,14 +8,14 @@ export function showAxiosError(prefix, error) {
     console.log('⚠️ Respuesta backend:', error.response.data);
     try {
       const text = typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data);
-      alert(prefix + ' → ' + text);
+      emitToast(prefix + ' → ' + text, 'error');
     } catch (e) {
-      alert(prefix + ' → (error al serializar respuesta)');
+      emitToast(prefix + ' → (error al serializar respuesta)', 'error');
     }
   } else if (error && error.request) {
     console.log('⚠️ Sin respuesta del backend:', error.request);
-    alert(prefix + ' → No hubo respuesta del servidor.');
+    emitToast(prefix + ' → No hubo respuesta del servidor.', 'error');
   } else {
-    alert(prefix + ' → ' + (error && error.message ? error.message : String(error)));
+    emitToast(prefix + ' → ' + (error && error.message ? error.message : String(error)), 'error');
   }
 }

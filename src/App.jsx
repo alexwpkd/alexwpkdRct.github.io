@@ -12,6 +12,7 @@ import News from './components/News.jsx';
 import Admin from './components/Admin.jsx';
 import Product from './components/Product.jsx';
 import Carrito from './components/Carrito.jsx';
+import ToastHost from './components/ToastHost.jsx';
 
 import api from './utils.js';
 import { getAuthInfo } from './utils/auth.js';
@@ -219,6 +220,7 @@ export default function App() {
   return (
     <div className="app">
       <Header />
+      <ToastHost />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
