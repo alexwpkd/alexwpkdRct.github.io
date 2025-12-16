@@ -2,7 +2,17 @@
 import axios from 'axios';
 import images from './assets/images/index.js';
 
-const API_BASE = 'http://3.234.160.238:8080'; 
+// ✅ Lee la URL del backend desde package.json (sección "config.apiBase")
+// Nota: esto funciona porque Vite permite importar JSON como módulo.
+import pkg from '../package.json';
+
+const API_BASE = pkg?.config?.apiBase;
+
+if (!API_BASE) {
+  throw new Error(
+    "[api] Falta config.apiBase en package.json. Agrega: \"config\": { \"apiBase\": \"http://TU_IP:8080\" }"
+  );
+}
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -32,7 +42,6 @@ export default api;
 if (import.meta.env.DEV) {
   console.info('[api] API_BASE =', API_BASE);
 }
-
 
 /**
  * Resolver claves de imagen que pueden venir del backend.
@@ -115,7 +124,8 @@ export function validarRUT(rut) {
   }
 
   const resto = suma % 11;
-  const digitoCalculado = resto === 0 ? '0' : resto === 1 ? 'k' : (11 - resto).toString();
+  const digitoCalculado =
+    resto === 0 ? '0' : resto === 1 ? 'k' : (11 - resto).toString();
 
   return digitoVerificador === digitoCalculado;
 }

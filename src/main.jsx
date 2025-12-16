@@ -21,11 +21,12 @@ createRoot(document.getElementById('root')).render(
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter basename="/alexwpkdRct.github.io">
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <App />
     </BrowserRouter>
   </React.StrictMode>
 );
+
 /*
 import { StrictMode } from 'react' import { createRoot } from 'react-dom/client' import './index.css' import App from './App.jsx' // si usas bootstrap.css, impórtalo encima // import './styles/bootstrap.min.css' import { BrowserRouter } from 'react-router-dom' import './css/animate.css' import './css/main.css' import './css/responsive.css' createRoot(document.getElementById('root')).render( <BrowserRouter> <App /> </BrowserRouter> )
 */

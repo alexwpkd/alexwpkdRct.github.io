@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "config": {
+    "apiBase": "http://3.234.160.238:8080"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
